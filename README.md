@@ -2,6 +2,9 @@
 Pale Blue Dot — Advanced OpenGL Rendering Demo  
 A real-time OpenGL-based Earth visualization inspired by the Pale Blue Dot concept, focused on achieving cinematic planetary rendering through physically grounded techniques and modern GPU pipelines. The project emphasizes large-scale realism, atmospheric depth, and high-quality reconstruction.
 
+## 🎥 Demo
+[![Watch the demo](https://img.youtube.com/vi/LkIvZLP09sk/maxresdefault.jpg)](https://youtu.be/LkIvZLP09sk?t=19)
+
 ## Core Rendering & Graphics Techniques
 
 ### Temporal Super Resolution (TSR)
