@@ -1,0 +1,891 @@
+#version 460 core
+
+#define cld_march_steps_max (256)//change to 64 later
+
+uniform float fCloudFactor;
+uniform float fEarthRadius;
+uniform vec2 v2InnerOuterRadius;
+//float earthRadius = 63600.0;
+float sphereInnerRadius = v2InnerOuterRadius.x * fEarthRadius * 0.0031446541;
+float sphereOuterRadius = v2InnerOuterRadius.y * fEarthRadius * 0.002;
+
+#define EARTH_RADIUS fEarthRadius
+#define SPHERE_INNER_RADIUS (EARTH_RADIUS + sphereInnerRadius)
+#define SPHERE_OUTER_RADIUS (SPHERE_INNER_RADIUS + sphereOuterRadius)
+#define SPHERE_DELTA float(SPHERE_OUTER_RADIUS - SPHERE_INNER_RADIUS)
+
+vec3 EarthCenter = vec3(0.0, -fEarthRadius, 0.0);
+
+#define STRATUS_GRADIENT vec4(0.0, 0.09, 0.11, 0.15)
+#define STRATOCUMULUS_GRADIENT vec4(0.01, 0.2, 0.48, 0.625)
+#define CUMULUS_GRADIENT vec4(0.02, 0.1, 0.5, 1.0)
+
+#define HORIZON_CLOUDS 0
+//float HighCloudCoverage = 0.0;
+uniform float fCloudVolumetricCoverage;
+uniform float fCloudHighAltitudeCoverage;
+
+#define PI 3.14159265
+
+const float c_goldenRatioConjugate = 0.6180339887498948482;
+
+float cutoff = 0.0;
+
+#define FOV 1.0
+
+const vec3 RandomConePoints[] =
+{
+	vec3(0.38051305f,  0.92453449f, -0.02111345f),
+	vec3(-0.50625799f, -0.03590792f, -0.86163418f),
+	vec3(-0.32509218f, -0.94557439f,  -0.01428793f),
+	vec3(0.09026238f, -0.27376545f,  0.95755165f),
+	vec3(0.28128598f,  0.42443639f, -0.86065785f),
+	vec3(-0.16852403f,  0.14748697f,  0.97460106f)
+};
+
+struct ray_t
+{
+	vec3 origin;
+	vec3 direction;
+	float step;
+};
+
+struct volume_sampler_t
+{
+	vec3 origin; // start of ray
+	vec3 pos; // current pos of acccumulation ray
+	float height;
+	float T; // transmitance
+	vec3 C; // color
+	float alpha;
+	vec3 worldPos;
+};
+
+layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+
+uniform layout(rgba8, binding = 0) writeonly image2D cloudNearestImage;
+uniform layout(rgba8, binding = 1) writeonly image2D cloudLinearImage;
+uniform layout(rg16f, binding = 2) writeonly image2D cloudVelocityImage;
+uniform layout(rg16f, binding = 3) writeonly image2D cloudDepthImage;
+
+//sampler3D
+uniform sampler3D tSampler3D_PerlinWorley;
+uniform sampler3D tSampler3D_Worley32;
+//sampler2D
+uniform sampler2D tSampler2D_WeatherMap;
+uniform sampler2D tSampler2D_BlueNoise;
+uniform sampler2D tSampler2D_CurlNoise;
+uniform sampler2D tSampler2D_BeerShadowMap;
+
+//sampler2D clouds
+uniform sampler2D tSampler2D_Cirrus;
+uniform sampler2D tSampler2D_CirroStratus;
+uniform sampler2D tSampler2D_CirroCumulus;
+
+//matrices
+uniform mat4 m4LightViewProjX;
+uniform mat4 m4InvViewX;
+uniform mat4 m4PrevViewX;
+uniform mat4 m4InvProjX;
+uniform mat4 m4ProjX;
+//vectors
+uniform vec3 v3CameraPosition;
+uniform vec3 v3SunPos;
+uniform vec3 v3SunColor;
+
+uniform vec2 v2Resolution;
+
+//ints and floats
+uniform int iPixelID;
+uniform unsigned int iFrameID;
+uniform float fTime;
+
+
+float rand(vec2 co)
+{
+	return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+float rand(float n)
+{
+	return fract(sin(n) * 43758.5453123);
+}
+
+float get_sun_phase(vec3 ray_dir, vec3 sun_dir, float g) {
+	float t = acos(dot(ray_dir, sun_dir)) *1;
+	float term_a = 1 - g * g;
+	float term_b = 1 + g * g;
+	float term_c = 2 * g * cos(t);
+	float term_d = 4 * PI * pow(term_b - term_c, 3.0 / 2.0);
+	float phase = term_a / term_d;
+	return phase;
+}
+
+vec3 U2ToneMapping(vec3 color)
+ {
+	const float A = 0.15;
+	const float B = 0.50;
+	const float C = 0.10;
+	const float D = 0.20;
+	const float E = 0.02;
+	const float F = 0.30;
+
+	color= (((color * (A * color + C * B) + D * E) / (color * (A * color + B) + D * F)) - E / F);
+	color = pow(color, vec3(0.4545454545));
+	return color;
+ }
+
+vec3 Uncharted2ToneMapping(vec3 color,float Exposure)
+{
+	float A = 0.15;
+	float B = 0.50;
+	float C = 0.10;
+	float D = 0.20;
+	float E = 0.02;
+	float F = 0.30;
+	float W = 11.2;
+	float exposure = Exposure;
+	color *= exposure;
+	color = ((color * (A * color + C * B) + D * E) / (color * (A * color + B) + D * F)) - E / F;
+	float white = ((W * (A * W + C * B) + D * E) / (W * (A * W + B) + D * F)) - E / F;
+	color /= white;
+	color = pow(color, vec3(0.4545454545));
+	return color;
+}
+
+vec3 filmicToneMapping(vec3 color)
+{
+	color = max(vec3(0.), color - vec3(0.004));
+	color = (color * (6.2 * color + .5)) / (color * (6.2 * color + 1.7) + 0.06);
+	return color;
+}
+
+vec3 SimpleToneMap(vec3 color)
+{
+	float exposure = 2.5;
+	color=1.0 - exp(-color * exposure);
+	color = pow(color, vec3(0.4545454545));
+	return color;
+}
+
+vec3 simpleReinhardToneMapping(vec3 color)
+{
+
+	color *= 1. / (1. + color);
+	color = pow(color, vec3(0.4545454545));
+	return color;
+}
+
+vec3 lumaBasedReinhardToneMapping(vec3 color)
+{
+	float luma = dot(color, vec3(0.2126, 0.7152, 0.0722));
+	float toneMappedLuma = luma / (1. + luma);
+	color *= toneMappedLuma / luma;
+	color = pow(color, vec3(0.4545454545));
+	return color;
+}
+
+vec3 unreal(vec3 x)
+{
+	return x / (x + 0.155) * 1.019;
+}
+
+float Remap(float val, float oldMin, float oldMax, float newMin, float newMax)
+{
+	return newMin + ((val - oldMin) / (oldMax - oldMin)) * (newMax - newMin);
+}
+
+float Remap_tri(float v)
+{
+	float original = v * 2.0 - 1.0;
+	float z = max(-1.0, original / sqrt(abs(original)));
+	return z - sign(original) + 0.5;
+}
+
+vec2 getUVProjection(vec2 p,float Multiplier)
+{
+	return ((p/ SPHERE_OUTER_RADIUS) * Multiplier)+0.5;
+}
+
+vec2 getUVProjection_new(vec3 p)
+{
+	float u = 0.5 + atan(p.x, p.z) / (2 * PI);
+	float v = 0.5 - asin(p.y) / PI;
+	return vec2(u, v);
+}
+
+float getHeightFraction(vec3 inPos)
+{
+	return (length(inPos- EarthCenter) - SPHERE_INNER_RADIUS) / (SPHERE_DELTA);
+}
+
+
+vec3 IntersectSphereFromInside(const vec3 pos, const vec3 dir, const float r)
+{
+	//for infinite cloud Distance
+	//sphereCenter.xz = pos.xz;
+	//sphereCenter.y = pos.y- EARTH_RADIUS;
+
+	//sphereCenter =  vec3(0.0, -EARTH_RADIUS,0.0);
+	//sphereCenter.xz = pos.xz;
+
+	vec3 L = pos - EarthCenter;
+
+	float a = dot(dir, dir);
+	float b = 2.0 * dot(dir, L);
+	float c = dot(L, L) - (r * r);
+	float d = sqrt((b * b) - 4.0 * a * c);
+
+	//float p = -b - d;
+	float p2 = -b + d;
+
+	float t = p2/ (2.0 * a);
+	t = max(0, t);
+	return pos + dir * t;
+}
+
+vec2 raySphere(vec3 sphereCentre, float sphereRadius, vec3 rayOrigin, vec3 rayDir)
+{
+	vec3 offset = rayOrigin - sphereCentre;
+	float a = 1; // Set to dot(rayDir, rayDir) if rayDir might not be normalized
+	float b = 2 * dot(offset, rayDir);
+	float c = dot(offset, offset) - sphereRadius * sphereRadius;
+	float d = b * b - 4 * a * c; // Discriminant from quadratic formula
+
+	// Number of intersections: 0 when d < 0; 1 when d = 0; 2 when d > 0
+	if (d > 0)
+	{
+		float s = sqrt(d);
+		float dstToSphereNear = max(0, (-b - s) / (2 * a));
+		float dstToSphereFar = (-b + s) / (2 * a);
+
+		// Ignore intersections that occur behind the ray
+		if (dstToSphereFar >= 0)
+		{
+			return vec2(dstToSphereNear, dstToSphereFar - dstToSphereNear);
+		}
+	}
+	// Ray did not intersect sphere
+	 const float maxFloat = 3.402823466e+38;
+	return vec2(maxFloat, 0);
+}
+
+vec2 rayShellInfo(vec3 rayPos, vec3 rayDir,vec3 sphereCenter)
+{
+	vec2 innerSphereHitInfo = raySphere(sphereCenter, SPHERE_INNER_RADIUS, rayPos, rayDir);
+	vec2 outerSphereHitInfo = raySphere(sphereCenter, SPHERE_OUTER_RADIUS, rayPos, rayDir);
+	float dstToInnerSphere = innerSphereHitInfo.x;
+	float dstThroughInnerSphere = innerSphereHitInfo.y;
+	float dstToOuterSphere = outerSphereHitInfo.x;
+	float dstThroughOuterSphere = outerSphereHitInfo.y;
+	float dstFromCentre = length(rayPos - sphereCenter);
+
+	float dstToShell = 0;
+	float dstThroughShell = 0;
+
+	// View point is from outside the outer shell
+	if (dstFromCentre > SPHERE_OUTER_RADIUS)
+	{
+		dstToShell = dstToOuterSphere;
+		dstThroughShell = (dstThroughInnerSphere > 0) ? dstToInnerSphere - dstToOuterSphere : dstThroughOuterSphere;
+	}
+	// View point is inside the shell
+	else if (dstFromCentre > SPHERE_INNER_RADIUS)
+	{
+		dstToShell = 0;
+		dstThroughShell = (dstThroughInnerSphere > 0) ? dstToInnerSphere : dstThroughOuterSphere;
+	}
+	// View point is inside the inner shell
+	else {
+		dstToShell = dstThroughInnerSphere;
+		dstThroughShell = dstThroughOuterSphere - dstThroughInnerSphere;
+	}
+
+	return vec2(dstToShell, dstThroughShell);
+}
+
+vec3 IntersectInnerOrOuterAtmosphere(const vec3 pos, const vec3 dir, const float radiusInner, const float radiusOuter)
+{
+
+	vec3 L = pos - EarthCenter;
+
+	float a = dot(dir, dir);
+	float b = 2.0 * dot(dir, L);
+	float c = dot(L, L) - (radiusInner * radiusInner);
+	float d = (b * b) - 4.0 * a * c;
+
+	if (d < 0.0)
+	{
+		return IntersectSphereFromInside(pos, dir, radiusOuter);
+	}
+
+	d = sqrt(d);
+
+	float t1 = -b - d;//first from outer
+	float t2 = -b + d;//second from outer
+
+	//point 1
+	float t = t1 / (2.0 * a);
+	t = max(0, t);
+
+	return  pos + dir * t;
+}
+
+bool IntersectSphereFromOutside(const vec3 pos, const vec3 dir, const float r ,out vec3 p1 , out vec3 p2)
+{
+	//for infinite cloud Distance
+	//sphereCenter.xz = pos.xz;
+	//sphereCenter.y = pos.y- EARTH_RADIUS;
+
+	//sphereCenter = vec3(0.0, -EARTH_RADIUS, 0.0);
+	//sphereCenter.xz = pos.xz;
+
+	vec3 L = pos - EarthCenter;
+
+	float a = dot(dir, dir);
+	float b = 2.0 * dot(dir, L);
+	float c = dot(L, L) - (r * r);
+	float d = (b * b) - 4.0 * a * c;
+
+	if (d < 0.0)
+	{
+		return false;
+	}
+
+	d = sqrt(d);
+
+	float t1 = -b - d;
+	float t2 = -b + d;
+
+	//point 1
+	float t = t1 / (2.0 * a);
+	t = max(0, t);
+
+	p1 = pos + dir * t;
+
+	//point 2
+	      t = t2 / (2.0 * a);
+	t = max(0, t);
+
+	p2 = pos + dir * t;
+
+	return true;
+}
+
+vec3 IntersectSphereTest(const vec3 pos, const vec3 dir, const float r)
+{
+	//for infinite cloud Distance
+	//sphereCenter.xz = pos.xz;
+	//sphereCenter.y = pos.y- EARTH_RADIUS;
+
+	//sphereCenter = vec3(0.0, -EARTH_RADIUS, 0.0);
+	//sphereCenter.xz = pos.xz;
+
+	vec3 L = pos - EarthCenter;
+
+	float a = dot(dir, dir);
+	float b = 2.0 * dot(dir, L);
+	float c = dot(L, L) - (r * r);
+	float d = sqrt((b * b) - 4.0 * a * c);
+
+	float p = -b - d;
+	float p2 = -b + d;
+
+	float t = p / (2.0 * a);
+	t = max(0, t);
+	return pos + dir * t;
+}
+
+float HenyeyGreenstein(float toSunDirDotRayDir, float inG)
+{
+	float g2 = inG * inG;
+	//return (1.0 - g2) / (pow(1.0 + g2 - 2.0 * inG * toSunDirDotRayDir, 1.5) * 4.0 * 3.14159265359);
+	return (((1.0 - g2) / pow((1.0 + g2 - 2.0 * inG * toSunDirDotRayDir), 1.5)) / 4.0 * 3.14159265359);//3.0/2.0=1.5   and   try removing (/ 4.0 * 3.14159265359)
+}
+
+float PowderEffect(float baseDensity, float toSunDirDotRayDir)
+{
+	float powder = (1.0 - exp(-baseDensity * 2.0)) * 2.0;
+	return mix(1.0, powder, clamp(-toSunDirDotRayDir * 0.5 + 0.5, 0.0, 1.0));// Ray z is negative so -dot
+}
+
+float getDensityHeightGradientCloud(float heightFraction, float cloudType)
+{
+	float stratusFactor = 1.0 - clamp(cloudType * 2.0, 0.0, 1.0);
+	float stratoCumulusFactor = 1.0 - abs(cloudType - 0.5) * 2.0;
+	float cumulusFactor = clamp(cloudType - 0.5, 0.0, 1.0) * 2.0;
+
+	vec4 baseGradient = stratusFactor * STRATUS_GRADIENT + stratoCumulusFactor * STRATOCUMULUS_GRADIENT + cumulusFactor * CUMULUS_GRADIENT;
+	//return Remap(heightFraction, baseGradient.x, baseGradient.y, 0.0, 1.0) * Remap(heightFraction, baseGradient.z, baseGradient.w, 1.0, 0.0);
+	return smoothstep(baseGradient.x, baseGradient.y, heightFraction) - smoothstep(baseGradient.z, baseGradient.w, heightFraction);
+}
+
+float ZzSilverLine(float SunDotEye,float Eccentricity)
+{
+//	float Eccentricity = 0.922; //range 0 to 1
+	float SilverSpread = 0.75;//range 0 to 1
+	float SilverIntensity = 1.0;//0.87 
+
+	//float HG = max(0.0, HenyeyGreenstein(SunDotEye, Eccentricity));////
+	float HG = max(SilverIntensity * HenyeyGreenstein(SunDotEye, 0.99 - SilverSpread), HenyeyGreenstein(SunDotEye, Eccentricity));////
+	return HG;
+}
+
+float ZzCloudDensity(vec3 cloudPos, float HeightFract)
+{
+	vec2 WeatherUV = getUVProjection(cloudPos.xz,16);
+	vec2 LowWeatherUV = getUVProjection(cloudPos.xz, 1);
+	vec2 WeatherUVSpace = getUVProjection(cloudPos.xz, 4);
+	vec2 CloudCoverage = texture(tSampler2D_WeatherMap, WeatherUV).rb;
+	float LowCloudCoverage = texture(tSampler2D_WeatherMap, WeatherUVSpace).g;
+	float HD = getDensityHeightGradientCloud(HeightFract, 1.0);
+	float HD_Variation = getDensityHeightGradientCloud(1.0-HeightFract-0.4, 0.161);
+
+	vec4 noise = texture(tSampler3D_PerlinWorley, vec3(LowWeatherUV *100.0f, HeightFract * 0.147 * v2InnerOuterRadius.y ));
+	vec4 noiseHigh = texture(tSampler3D_PerlinWorley, 8*vec3(LowWeatherUV *100.0f, HeightFract * 0.147 * v2InnerOuterRadius.y ));
+
+	float noiseHighFBM = dot(noiseHigh.rgb, vec3(0.625, 0.25, 0.125));
+	float baseWorleyFBM = dot(noise.rgb, vec3(0.625, 0.25, 0.125));
+	float baseCloud = CloudCoverage.r* HD;
+
+	 baseCloud = Remap(baseCloud, (1.0 - noise.r) , 1.0, (0.0), 1.0);//basecloud shape
+	 baseCloud = Remap(baseCloud, (1.0- noiseHighFBM)*0.330, 1.0, (0.0), 1.0);//basecloud shape
+
+	//float Density = mix(1.0-noise.a,baseCloud, smoothstep(0.0,0.2, HeightFract)) * pow(HeightFract, 0.9)* CloudCoverage.r+ CloudCoverage.g* HD_Variation;//space
+	 float Density = baseCloud * pow(HeightFract, 0.9) * CloudCoverage.r + HD_Variation * pow(1.0 - noise.a, 1.8) ;//space
+
+	return Density*0.3;
+}
+
+float ZzCloudDensityLow(vec3 cloudPos,float HeightFract)
+{
+	float HD = getDensityHeightGradientCloud(HeightFract, 1.0);
+	vec2 WeatherUV = getUVProjection(cloudPos.xz, 16);
+	float CloudCoverage = texture(tSampler2D_WeatherMap, WeatherUV).r;
+
+	float Density = CloudCoverage* HD;
+
+	return 1;
+}
+
+float ZzNeoCloudDensity(vec3 cloudPos, float LOD,bool expensive,float HeightFract)//LOD 0 to 1
+{
+	float Time = 0.1;//fTime*
+	float CloudSpeed = 5000.0;//50000.0;
+	float CloudSkewAmount = 1000.0;
+	vec3 windDirection = vec3(1.0, 0.0, 0.0);
+
+	//cloudPos += HeightFract * windDirection * CloudSkewAmount;
+	//cloudPos += (windDirection + vec3(0.0, 0.1, 0.0)) * Time * CloudSpeed*0.1;// vec3(0.0, 0.1, 0.0) -> not using cloudPos.y(try later)
+
+	float animateCoverage = 0.84;//fCloudVolumetricCoverage //0.67
+
+	vec2 cloudPosUV = getUVProjection(cloudPos.xz,12);
+	vec4 WeatherData = texture(tSampler2D_WeatherMap, (cloudPosUV+1000.0));
+	// vec3 curl = texture(tSampler2D_CurlNoise, cloudPosUV).rgb;//add later
+	 float CumuloNimbus = texture(tSampler2D_CurlNoise, vec2(WeatherData.g, HeightFract)).r;//add later
+
+	float HD = clamp(getDensityHeightGradientCloud(HeightFract, 0.3), 0.0, 1.0);//experimental //1.0 - pow(cutoff+0.0005, 4.0)
+	float HD_CumuloNimbus = clamp(getDensityHeightGradientCloud(HeightFract, fCloudFactor), 0.0, 1.0);//experimental //1.0 - pow(cutoff+0.0005, 4.0)
+	//float finalCloudCoverage = clamp(WeatherData.r* (animateCoverage*2.0-1.0) + (max((1.0 - cutoff), 0.5) -0.5)* HORIZON_CLOUDS, 0.0, 1.0) ;//+(fCloudFactor*2-1) 
+	//finalCloudCoverage *= (fCloudFactor)*1.2;
+
+	float baseCloud = WeatherData.r* WeatherData.r;
+	//float baseCloud = clamp(CumuloNimbus*0.4,0.0,1.0);
+	//baseCloud *= (HD);//smoothen cloud top and bottom 
+
+	if (expensive)//expensive
+	{
+		vec4 noise = textureLod(tSampler3D_PerlinWorley, vec3((cloudPosUV) * 20.0, (HeightFract) * 20.0 * 0.181) * 0.241, LOD);//  HeightFract* 0.612
+		float baseWorleyFBM = dot(noise.rgb, vec3(0.625, 0.25, 0.125));
+
+		baseCloud = Remap(baseCloud, (1.0 - noise.r) * 0.677, 1.0, (0.0), 1.0);//basecloud shape
+	}
+
+	//baseCloud *= 1.0-pow(1.0-HeightFract,3.0);
+	baseCloud *= mix(HD, HD_CumuloNimbus, 1);//smoothen cloud top and bottom 
+
+
+	 //Anvil
+	// float AnvilBias = 0.0;
+	// finalCloudCoverage = pow(finalCloudCoverage, Remap(HeightFract * HeightFract, 0.7, 0.8, 1.0, mix(1.0, 0.7, AnvilBias)));
+
+	 //test
+	// finalCloudCoverage = clamp((WeatherData.r- 0.24), 0.0, 1.0);
+
+	// float CloudWithCoverage = clamp(Remap(baseCloud, (1 - finalCloudCoverage), 1.0, 0.0, 1.0), 0.0, 1.0);
+	 
+	 float finalCloud = baseCloud;//* finalCloudCoverage
+
+	// vec4 noise3DHigh = textureLod(tSampler3D_Worley32, vec3(cloudPosUV * 36.288, (HeightFract * 4.39936)), LOD);//- Time*7.0
+
+	// finalCloud = Remap(finalCloud, (1.0 - noise3DHigh.r)*fCloudFactor*2, 1.0, 0.0, 1.0);
+
+	// if (false)//expensive
+	// {
+	//	 CloudWithCoverage *= finalCloudCoverage;
+
+	//	 //curl
+	//	// vec3 curl = texture(tSampler2D_CurlNoise, cloudPosUV*fCloudFactor*20).rgb;//add later
+	//	// cloudPosUV.xy += curl.xy * (1.0- HeightFract)*0.013;
+
+	//	 vec4 noise3DHigh = textureLod(tSampler3D_Worley32, vec3(cloudPosUV * 36.288, (HeightFract*4.39936)) , LOD);//- Time*7.0
+	//	 float worleyFBM_high = dot(noise3DHigh.rgb, vec3(0.625 , 0.25, 0.125));
+	//	//  worleyFBM_high = smoothstep(0.0,1.0,worleyFBM_high);
+
+	//	 float billowToWhispy = smoothstep(0.207,0.509,HeightFract);
+	//	// float billowToWhispy = clamp(HeightFract * 10.0, 0.0, 1.0);
+	//	  finalCloud = Remap(CloudWithCoverage, mix(worleyFBM_high, 1.0 - worleyFBM_high, billowToWhispy) * 0.220, 1.0, 0.0, 1.0);//clamp(HeightFract*2.0,0.0,1.0)
+
+	//	float densityModifier =  clamp(HeightFract+0.06,0.0,1.0);//Density increases at lower temperature,Temperature decreases over altitude
+	////	float densityModifier = smoothstep(0.0, fCloudFactor, HeightFract);
+	//	finalCloud *= densityModifier;//* clamp(HeightFract * 2.0, fCloudFactor, 1.0)
+
+	//	//finalCloud = CloudWithCoverage;//LowFreqCloud
+	// }
+
+	return max(finalCloud,0);
+}
+float ZzNeoFinalLight(float HG, float HeightFract, float LightDensity, float lowBaseDensity,float CosTheta,float lightStep)
+{
+	//beerLambert
+	float primaryAttenuation = exp(-LightDensity*18);
+	float secondaryAttenuation = (exp(-LightDensity *9) * 0.25);
+	float BeerLambert = max(primaryAttenuation, secondaryAttenuation);
+//	float BeerLambert = max(Remap(CosTheta,0.7 ,1.0, secondaryAttenuation, secondaryAttenuation*0.25), primaryAttenuation);
+
+	//inScatter
+	float DepthProbability = mix(0.05+pow(lowBaseDensity, Remap(HeightFract, 0.0, 1.0, 0.5, 2.0)),1.0, clamp(LightDensity / lightStep, 0, 1));//
+//	float DepthProbability = smoothstep(fCloudFactor*0.1,0.3,pow(lowBaseDensity, 0.956));//
+//	float DepthProbability = (1.0 - exp(-lowBaseDensity * 2) );//
+	float verticalProbability = pow(Remap(HeightFract, 0.0, 0.2, 0.007, 1.0),1.0);
+	float inScatterProbability = verticalProbability* DepthProbability;
+	//brightness
+	float Brightness = 7;
+	return Brightness  * BeerLambert* HG* inScatterProbability;//
+}
+
+float linearize_depthVulkan(float d, float zNear, float zFar)
+{
+	return zNear * zFar / (zFar + d * (zNear - zFar));
+}
+
+// this is where the magic happens
+float SampleVolTexTricubically(sampler3D Noise3D, vec3 tc,float size)
+{
+	vec3 uvw = tc * size - 0.5;
+
+	vec3 uvwi = floor(uvw);
+	vec3 uvwf = uvw - uvwi;
+
+	vec3 mo = uvwf - uvwf * uvwf;
+
+#if 1
+	mo = (mo * -0.5 + 1.0) * mo;// use this if it improves quality
+#endif
+
+	uvwf = (uvwf - mo) / (1.0 - 2.0 * mo);// map modulator to s-curve
+
+	uvw = uvwi + uvwf + vec3(0.5);
+
+	vec4 v = texture(Noise3D, uvw / size);// replace this with native trilinear lookup
+
+	mo *= fract(uvwi * 0.5) * 4.0 - 1.0;// flip modulator bump on every 2nd interval
+
+	return dot(v, vec4(mo, 1.0));
+}
+
+//vec3 GetIrradiance(sampler2D irradiance_texture, float r, float mu_s)
+//{
+//	vec2 uv = GetIrradianceTextureUvFromRMuS( r, mu_s);
+//	return texture(irradiance_texture, uv);
+//}
+
+vec3 GetSolarRadiance();
+vec3 GetSkyRadiance(vec3 camera, vec3 view_ray, float shadow_length,
+	vec3 sun_direction, out vec3 transmittance);
+vec3 GetSkyRadianceToPoint(vec3 camera, vec3 point, float shadow_length,
+	vec3 sun_direction, out vec3 transmittance);
+vec3 GetSunAndSkyIrradiance(
+	vec3 p, vec3 normal, vec3 sun_direction, out vec3 sky_irradiance);
+
+void main(void)
+{
+	//uint ID = (gl_LocalInvocationID.y % 4 * gl_WorkGroupSize.x/4 ) + gl_LocalInvocationID.x % 4;
+	vec3 startPos, endPos;
+	vec2 temporalUV;
+	//vec2 jitter = (vec2(rand(fTime), rand(fTime + 2.0)) - 0.5) * 1.0/1920.0;
+
+	ivec2 fragCoords = ivec2(gl_GlobalInvocationID.xy);
+	//vec2 resolution = vec2(1920.0, 1080.0);
+
+	vec3 test = vec3(1.0);
+
+	vec2 pixelOffset;
+	pixelOffset.x = iPixelID % 4;
+	pixelOffset.y = iPixelID / 4;
+
+	 temporalUV = ((fragCoords *4)+0.5 + pixelOffset);
+
+	//vec2 uvCoords = temporalUV / resolution;
+	vec2 uvCoords = (fragCoords+0.5) / v2Resolution;
+	vec3 camPos = v3CameraPosition;
+
+	//camPos = vec3(0.0, 10.0, 0.0);
+
+	vec2 ndcRay = (2.0 * (uvCoords)-1.0);//-1 to 1
+
+	vec4 ray_view = m4InvProjX *  vec4(ndcRay, 1.0, 1.0);
+	ray_view = vec4(ray_view.xyz, 0.0);
+	//ray_view = vec4(ray_view.xy/ ray_view.z, -1.0, 0.0);
+
+	vec3 worldDir = (m4InvViewX * ray_view).xyz;
+
+	worldDir = normalize(worldDir );
+
+	ray_t ray = { camPos,worldDir,0.0 };
+
+	vec3 toSundir = normalize(v3SunPos);
+	float CosTheta = dot(toSundir, normalize(ray.direction));
+	float SunTheta = max(dot(toSundir, vec3(0.0, 1.0, 0.0)), 0.0);
+	cutoff = dot(ray.direction, vec3(0.0, 1.0, 0.0));
+
+	float lengthOfCameraPos = length(camPos- EarthCenter);//relative to sphere origin
+
+	bool hit = false;
+
+	 if((lengthOfCameraPos >= SPHERE_OUTER_RADIUS))
+	{
+		bool hitFirst,hitSecond;
+		vec3 p1, p2 ,q1 ,q2;
+
+		hitFirst = IntersectSphereFromOutside(ray.origin, ray.direction, SPHERE_OUTER_RADIUS, p1, p2);
+		hitSecond = IntersectSphereFromOutside(ray.origin, ray.direction, SPHERE_INNER_RADIUS, q1, q2);
+
+		if (hitFirst == false )
+		{
+			hit = false;
+
+		}
+		else
+		{
+			startPos = p1;
+			endPos = p2;
+
+			if (hitSecond == true)
+			{
+				endPos = q1;
+			}
+
+			hit = true;
+		}
+
+	}
+	else if (lengthOfCameraPos < (SPHERE_INNER_RADIUS))
+	{
+		 startPos = IntersectSphereFromInside(ray.origin, ray.direction, SPHERE_INNER_RADIUS);
+		 endPos = IntersectSphereFromInside(ray.origin, ray.direction, SPHERE_OUTER_RADIUS);
+		 hit = true;
+		 test = vec3(0.0, 1.0, 0.0);
+	}
+	else
+	{
+		 startPos = ray.origin + ray.direction * 2;
+		// endPos = IntersectInnerOrOuterAtmosphere(ray.origin, ray.direction, SPHERE_INNER_RADIUS, SPHERE_OUTER_RADIUS);
+		 endPos = ray.origin + ray.direction * 1000;
+		 hit = true;
+		 test = vec3(1.0, 1.0, 0.0);
+	}
+
+	// startPos = startPos + ray.direction * (rand(iFrameID)*2.0-1.0) * fCloudFactor*50.0;
+	 ///////////////////////////origin///cur pos///Height//T/////C//////Alpha//WorldPos///////////////////////////////////////////
+	 volume_sampler_t cloud = { startPos , startPos , 0.0, 0.0 , vec3(0), 0.0, startPos };
+
+	//if (hit == true)
+	if (hit == true)
+	{
+		cloud.T = 1.0;
+
+		//	if((cutoff + 0.005) > 0.0)//(cutoff+0.2) > 0.0
+		//if (startPos.y> EARTH_RADIUS)
+		if (true)
+		{
+			vec3 path = endPos - startPos;
+			float len = length(path);
+			const uint nSteps = uint(cld_march_steps_max);
+			float deltaStepLength = len / nSteps;
+			vec3 deltaStep = path / nSteps;
+			bool CloudFirst = true;
+
+			////Cloud Detection OPTIMIZATION NO 0
+			//for (int i = 0; i < int(nSteps); i++)
+			//{
+
+			//	float baseDensity = ZzCloudDensityLow(cloud.pos);
+			//	if (baseDensity >0.0)
+			//	{
+			//		cloud.pos -= deltaStep;
+
+			//		path = endPos - cloud.pos;
+			//		len = length(path);
+			//		nSteps = cld_march_steps_max;
+			//		deltaStepLength = len / nSteps;
+			//		deltaStep = path / nSteps;
+			//		
+			//		break;
+			//	}
+			//	cloud.pos += deltaStep;
+			//}
+			float lowCloudTest = 0.0;
+			float HG = ZzSilverLine(CosTheta,0.6);
+			for (uint i = 0; i < (nSteps); i++)
+			{
+				if (cloud.alpha < 0.95)
+				{
+					if (lowCloudTest>0.0)
+					{
+
+						cloud.height = clamp(getHeightFraction(cloud.pos), 0.0, 1.0);
+
+						float baseDensity = ZzCloudDensity(cloud.pos, cloud.height);
+						float LightDensity = 0.0;
+						float ShadowTrans = 1.0;
+
+						//cloudSelfDarkening
+						if (baseDensity > 0.0)
+						{
+
+							for (int j = 0; j < 6; j += 1)
+							{
+								float StepLength = (j + 1) * fEarthRadius * 0.000127;
+								vec3 TempPos = cloud.pos + toSundir * StepLength;//+ (RandomConePoints[int(j)] * (j) * 18.0)
+								float TempHeight = clamp(getHeightFraction(TempPos), 0.0, 1.0);
+								float TempDensity = ZzCloudDensity(TempPos, TempHeight);
+
+								LightDensity += TempDensity;
+							}
+						}
+						//BSM
+						vec4 LightSpacePos = m4LightViewProjX * vec4(cloud.pos, 1.0);
+						LightSpacePos /= LightSpacePos.w;
+						LightSpacePos.xy = LightSpacePos.xy * 0.5 + 0.5;
+
+						float near = 10.0;
+						float far = near + 10000.0;
+
+						float LinearEyeDepth = linearize_depthVulkan(LightSpacePos.z, near, far);
+						vec3 BeerShadowMap = texture(tSampler2D_BeerShadowMap, LightSpacePos.xy).rgb;
+
+						float OpticalDepth = min(BeerShadowMap.b, BeerShadowMap.g * max(0.0, LinearEyeDepth - BeerShadowMap.r));
+						float CloudTransmittance = exp(-OpticalDepth*0.151);
+
+						float SigmaScattering = 1.0 + 0.0;//10.0*fCloudFactor
+						float SigmaAbsorbtion = 0.0;
+						float SigmaExtinction = SigmaScattering + SigmaAbsorbtion;//+ 4 * max(CosTheta, 0.0001)
+
+
+						float SampleSigmaScattering = SigmaScattering * baseDensity;
+						float SampleSigmaExtinction = max(SigmaExtinction * baseDensity, 0.000000001);//divide by zero
+
+						float DeltaTrans = exp(-SampleSigmaExtinction * deltaStepLength);//coneSpreadMultiplier
+
+						vec3 skyIrradiance;
+						vec3 sunIrradiance;
+						sunIrradiance = GetSunAndSkyIrradiance(cloud.pos - EarthCenter, toSundir, toSundir, skyIrradiance);
+
+						//float BeerLambert = max(exp(-LightDensity * 5), exp(-LightDensity*2));
+						float BeerLambert = exp(-LightDensity * 10);//space
+						float CloudBottom = smoothstep(0.0,0.3,cloud.height);
+						float DarkEdges = mix(pow(baseDensity*20, 2.0 ), 1.0,max(CosTheta,0.0));
+						vec3 S = (vec3(sunIrradiance* v3SunColor) * CloudBottom *CloudTransmittance*HG*  BeerLambert + skyIrradiance*200.0*fCloudFactor) * SampleSigmaScattering ;
+
+						//  Sebastien Hilaire (SebH) <3 Improved integration
+						vec3 Sint = (S - S * DeltaTrans) / SampleSigmaExtinction;
+						cloud.C += cloud.T * Sint;
+						cloud.T *= DeltaTrans;
+
+						cloud.worldPos += deltaStep * cloud.T;
+						cloud.pos += deltaStep;
+					}
+					else
+					{
+						cloud.height = clamp(getHeightFraction(cloud.pos), 0.0, 1.0);
+						lowCloudTest = ZzCloudDensityLow(cloud.pos, cloud.height);
+						if (lowCloudTest == 0.0)
+						{
+							cloud.pos += deltaStep*3;
+						}
+						else
+						{
+							cloud.pos -= deltaStep*2 ;
+						}
+					}
+					cloud.alpha = 1.0 - cloud.T;//final alpha
+				}
+			}
+
+			vec3 transmittance;
+			vec3 in_scatter = GetSkyRadianceToPoint(v3CameraPosition - EarthCenter, cloud.worldPos - EarthCenter, 0.0, toSundir, transmittance);
+			cloud.C = cloud.C * transmittance + in_scatter;
+
+			imageStore(cloudNearestImage, fragCoords, vec4(pow(unreal(cloud.C),vec3(0.454545)), cloud.alpha));
+			imageStore(cloudLinearImage, fragCoords, vec4(pow(unreal(cloud.C), vec3(0.454545)), cloud.alpha));
+	///////////////////////////////////////////////////////////////////////////////////
+
+		//	imageStore(cloudNearestImage, ivec2(fragCoords), vec4(Uncharted2ToneMapping(cld.rgb, 1.0), cld.a));//SimpleToneMap(cld.rgb)//vec3(cld.a>0?1.0:0.0)
+		//	imageStore(cloudLinearImage, ivec2(fragCoords), vec4(Uncharted2ToneMapping(cld.rgb, 1.0), cld.a));//SimpleToneMap(cld.rgb)//vec3(cld.a>0?1.0:0.0)
+		//	imageStore(cloudDepthImage, ivec2(fragCoords), vec4(cloudDepth / maxCloudDepth, HighAltitudeCloudAlpha, 0, 1));
+		}
+		else
+		{
+			imageStore(cloudNearestImage, fragCoords, vec4(vec3(0.0), 0.0));
+			imageStore(cloudLinearImage, fragCoords, vec4(vec3(0.0), 0.0));
+			imageStore(cloudDepthImage, ivec2(fragCoords), vec4(0.0, 0, 0, 1));
+		}
+
+		//velocity
+		vec4 previousPos = m4ProjX * m4PrevViewX * vec4(cloud.worldPos, 1.0);
+		previousPos /= previousPos.w;
+		vec2 q_cs = previousPos.xy;
+		vec2 q_uv = q_cs * 0.5 + 0.5;
+
+		vec2 velocity = uvCoords - q_uv;
+
+		imageStore(cloudVelocityImage, fragCoords, vec4(velocity, 0.0, 1.0));
+
+
+		//TEST----------------------------------------------
+
+		vec3 BlueNoise  = texture(tSampler2D_BlueNoise, vec2(fragCoords /vec2(256.0))*0.5).xyz;
+		vec4 noise = textureLod(tSampler3D_PerlinWorley, vec3(vec2(temporalUV / vec2(512)), fTime * 0.2), 0.0);//fTime*
+		vec4 weather = texture(tSampler2D_WeatherMap, (temporalUV / vec2(512)) / 3.0);//fTime*
+		float baseWorleyFBM = dot(noise.rgb, vec3(0.6, 0.25, 0.15));
+		float baseCloud = Remap(noise.a, 0.0, 1.0, ((baseWorleyFBM)-0.5), 1.0);
+
+		float finalCloudCoverage = clamp((weather.r - 0.556) * 5.0, 0.0, 1.0);
+		//finalCloudCoverage = smoothstep(0.0,0.7,finalCloudCoverage);//* cloudCoverage
+		float CloudWithCoverage = clamp(Remap(baseCloud, (1 - finalCloudCoverage), 1.0, 0.0, 1.0), 0.0, 1.0);
+
+		float sun = get_sun_phase(ray.direction, toSundir, 0.991);
+
+		vec4 noiseZz = textureLod(tSampler3D_Worley32, vec3(vec2(temporalUV / vec2(128)), fTime * 0.2), 0.0);//fTime*
+
+		float highWorleyFBM = dot(noiseZz.rgb, vec3(0.33, 0.33, 0.33));
+
+		float nimbus = texture(tSampler2D_CurlNoise, (temporalUV / vec2(512))).r;//fTime*
+
+		//	imageStore(cloudNearestImage, fragCoords, vec4(vec3(nimbus),1));
+		//	imageStore(cloudLinearImage, fragCoords, vec4(vec3(noise.r),1));
+		//	imageStore(cloudDepthImage, ivec2(fragCoords), vec4(noise.aa,0, 1));
+	}
+	else
+	{
+		imageStore(cloudNearestImage, fragCoords, vec4(vec3(0.0), 0.0));
+		imageStore(cloudLinearImage, fragCoords, vec4(vec3(0.0), 0.0));
+		imageStore(cloudDepthImage, ivec2(fragCoords), vec4(0.0, 0, 0, 1));
+		imageStore(cloudVelocityImage, fragCoords, vec4(0.0,0.0, 0.0, 1.0));
+	}
+	vec4 noise = texture(tSampler3D_PerlinWorley, vec3(temporalUV/128.0, fCloudFactor));
+//	vec3 color = texture(tSampler2D_WeatherMap, vec2(temporalUV)/512).aaa;
+//	imageStore(cloudNearestImage, fragCoords, vec4(vec3(noise.aaa), 1.0));
+}

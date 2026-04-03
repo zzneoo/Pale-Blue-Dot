@@ -1,0 +1,79 @@
+#version 460 core
+
+const float PI = 3.14159265359;
+const float kLengthUnitInMeters = 100.0;
+const float AtmoTopRadius = 66200.0;
+
+layout (location = 0 )out vec4 SkyDistant_Frame;
+
+uniform float fArtistFactor;
+uniform float fExposure;
+
+uniform mat4 m4InvViewX;
+uniform mat4 m4InvProjX;
+
+uniform vec2 v2NearFar;
+
+uniform vec3 v3SunPos;
+uniform vec3 v3EyePos;
+uniform vec3 v3EarthCenter;
+uniform vec2 v2SunSize;
+
+
+in vec2 TexCoord;
+in vec3 v3ViewRay;
+in vec4 v4FarWorldPos;
+
+vec3 GetSkyRadiance(vec3 camera, vec3 view_ray, float shadow_length,
+    vec3 sun_direction, out vec3 transmittance);
+
+float random (in vec2 _st)
+{
+    return fract(sin(dot(_st.xy,vec2(12.9898,78.233)))*43758.5453123);
+}
+
+vec3 unreal(vec3 x)
+{
+	return x / (x + 0.155) * 1.019;
+}
+
+vec3 filmicToneMapping(vec3 color)
+{
+	color = max(vec3(0.), color - vec3(0.004));
+	color = (color * (6.2 * color + .5)) / (color * (6.2 * color + 1.7) + 0.06);
+	return color;
+}
+
+vec3 sunWithBloom(vec3 rayDir, vec3 sunDir) 
+{
+  //  const float sunSolidAngle = 0.53*PI/180.0;
+   // const float minSunCosTheta = cos(sunSolidAngle);
+    const float minSunCosTheta = v2SunSize.y;
+    float SunDotZenith = max(dot(normalize(v3EyePos-v3EarthCenter),sunDir),0.0);
+
+    float cosTheta = dot(rayDir, sunDir);
+    if (cosTheta >= minSunCosTheta) return vec3(1.0);
+    
+    float offset = minSunCosTheta - cosTheta;
+    float gaussianBloom = exp(-offset*50000.0)*0.5;
+    float invBloom = 1.0/(0.02 + offset*300.0)*smoothstep(0.04,0.04+0.1,SunDotZenith)*0.04;
+    return vec3(gaussianBloom+invBloom);
+}
+
+void main(void)
+{		
+	vec3 WorldSpaceViewDir = normalize(v3ViewRay);				
+	vec3 toSunDir = normalize(v3SunPos);
+	
+	vec3 transmittanceSky;
+    vec3 SkyRadiance = GetSkyRadiance(v3EyePos - v3EarthCenter, WorldSpaceViewDir, 0.0, toSunDir, transmittanceSky);//+BlueNoise*100.0*fFactor
+	
+	vec3 sunDisk = sunWithBloom(WorldSpaceViewDir,toSunDir);
+    sunDisk = smoothstep(0.002, 1.0, sunDisk);
+
+    SkyRadiance +=sunDisk*transmittanceSky;
+	
+	float rand = random(gl_FragCoord.xy+0.5)*2.0-1.0;
+	
+	SkyDistant_Frame = vec4(pow(unreal(vec3(SkyRadiance*fExposure)),vec3(0.454545))+rand*0.0,1.0);
+}

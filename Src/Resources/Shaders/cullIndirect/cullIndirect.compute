@@ -1,0 +1,57 @@
+#version 460 core
+
+layout(local_size_x = 16) in;
+
+struct CandidateDraw
+{
+	vec3 sphereCenter;
+	float sphereRadius;
+	uint firstVertex;
+	uint vertexCount;
+};
+
+struct DrawArraysIndirectCommand
+{
+	uint vertexCount;
+	uint instanceCount;
+	uint firstVertex;
+	uint baseInstance;
+};
+
+layout(binding = 0, std430) buffer CandidateDraws
+{
+	CandidateDraw draw[];
+};
+
+layout(binding = 1, std430) writeonly buffer OutputDraws
+{
+	DrawArraysIndirectCommand command[];
+};
+
+layout(binding = 0, std140) uniform MODEL_MATRIX_BLOCK
+{
+	mat4 model_matrix[1024];
+};
+
+uniform mat4 m4ProjX;
+
+layout(binding = 0, offset = 0) uniform atomic_uint commandCounter;
+
+void main(void)
+{
+	const CandidateDraw thisDraw = draw[gl_GlobalInvocationID.x];
+	const mat4 thisModelMatrix = model_matrix[gl_GlobalInvocationID.x];
+
+	vec4 position = m4ProjX * thisModelMatrix * vec4(thisDraw.sphereCenter, 1.0);
+
+	if ((abs(position.x) - thisDraw.sphereRadius) < (position.w * 2.0) &&
+		(abs(position.y) - thisDraw.sphereRadius) < (position.w * 2.0))
+	{
+		uint outDrawIndex = atomicCounterIncrement(commandCounter);
+
+		command[outDrawIndex].vertexCount = thisDraw.vertexCount;
+		command[outDrawIndex].instanceCount = 1;
+		command[outDrawIndex].firstVertex = thisDraw.firstVertex;
+		command[outDrawIndex].baseInstance = uint(gl_GlobalInvocationID.x);
+	}
+}

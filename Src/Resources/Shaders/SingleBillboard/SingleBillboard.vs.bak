@@ -1,0 +1,22 @@
+#version 460 core
+		
+uniform vec3 v3Scale;
+uniform mat4 m4ModelViewProjX;
+
+out vec2 TexCoord;
+
+void main(void)
+{
+	const vec3 vertices[] = vec3[](vec3(-1.0, -1.0 ,0.0),
+                                   vec3( 1.0, -1.0 ,0.0),
+                                   vec3( -1.0, 1.0 ,0.0),
+                                   vec3( 1.0, 1.0 ,0.0));
+
+	vec3 worldPos = vertices[gl_VertexID];
+	TexCoord = worldPos.xy*0.5+0.5;
+	
+	worldPos=worldPos*v3Scale;
+	
+	gl_Position = m4ModelViewProjX*vec4(worldPos,1.0);
+	gl_Position = vec4(vertices[gl_VertexID],1.0);
+}

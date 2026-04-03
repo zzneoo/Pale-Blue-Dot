@@ -1,0 +1,26 @@
+#version 460 core
+
+uniform mat4 m4InvViewX;
+uniform mat4 m4InvProjX;
+	
+out vec2 TexCoord;
+out vec3 v3ViewRay;
+out vec4 v4FarWorldPos;
+
+void main(void)
+{
+	const vec2 vertices[] = vec2[](vec2(1.0, 1.0),
+                                   vec2( -1.0, 1.0),
+                                   vec2(-1.0, -1.0),
+                                   vec2( 1.0, -1.0));
+
+	vec2 v2NDC = vertices[gl_VertexID];
+	TexCoord = v2NDC * 0.5 + 0.5;
+
+	vec4 vertex = vec4(v2NDC,0.0,1.0);
+	v3ViewRay=(m4InvViewX * vec4((m4InvProjX * vertex).xyz, 0.0)).xyz;
+		
+	v4FarWorldPos = m4InvViewX*m4InvProjX*vec4(v2NDC,1.0,1.0);
+		
+	gl_Position = vertex;
+}

@@ -1,0 +1,31 @@
+#version 460 core
+		
+uniform vec3 v3Scale;
+uniform mat4 m4ModelViewX;
+uniform mat4 m4ProjX;
+uniform float fMaxEyeDistance;
+
+out vec3 worldPos;
+out float flogz;
+out vec2 PosZW;
+
+void main(void)
+{
+	const vec3 vertices[] = vec3[](vec3(0.0, 1.0 ,0.0),
+                                   vec3( 0.0, 0.0 ,0.0),
+                                   vec3( 1.0, 0.0 ,1.0));
+								   
+	const vec3 verticesFlat[] = vec3[](vec3(0.0, 0.0 ,1.0),
+                                   vec3( -1.0, 0.0 ,-1.0),
+                                   vec3( 1.0, 0.0 ,-1.0));
+
+	worldPos = vertices[gl_VertexID]*v3Scale;
+		
+	gl_Position = m4ProjX*m4ModelViewX*vec4(worldPos,1.0);
+	PosZW= vec2(gl_Position.zw);
+				
+	float Fcoef = 1.0 / log2(fMaxEyeDistance + 1.0);
+    flogz = 1.0 + gl_Position.w;	
+	//gl_Position.z = log2(max(1e-6, flogz)) *fMaxEyeDistance ;
+	//gl_Position.z *= gl_Position.w;
+}

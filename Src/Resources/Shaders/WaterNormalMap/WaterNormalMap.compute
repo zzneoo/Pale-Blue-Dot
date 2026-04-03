@@ -1,0 +1,25 @@
+#version 460 core
+
+layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+uniform layout(rgba8, binding = 0) writeonly image2D data;
+
+uniform sampler2D Sampler2D_WaterHeightMap;
+uniform int iTextureSize;
+
+void main(void)
+{
+	ivec2  pixel = ivec2(gl_GlobalInvocationID.xy);
+
+	vec2 UVs = vec2(pixel / float(iTextureSize));
+
+	float  texel = 1.0 / iTextureSize;
+
+	float R = texture(Sampler2D_WaterHeightMap, UVs + vec2(texel, 0.0)).r;
+	float L = texture(Sampler2D_WaterHeightMap, UVs + vec2(-texel, 0.0)).r;
+	float T = texture(Sampler2D_WaterHeightMap, UVs + vec2(0.0, texel)).r;
+	float B = texture(Sampler2D_WaterHeightMap, UVs + vec2(0.0, -texel)).r;
+
+	vec3 normal = normalize(vec3(2 * (R - L), 2 * (B - T), 0.05));
+
+	imageStore(data, pixel, vec4(vec3(normal*0.5+0.5),1.0));
+}

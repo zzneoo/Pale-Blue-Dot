@@ -1,0 +1,59 @@
+#version 460 core
+
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+const float c_goldenRatioConjugate = 0.6180339887498948482;
+
+uniform sampler2D tSampler2D_LightArea;
+uniform sampler2D tSampler2D_BlueNoise;
+uniform vec2 v2Resolution;
+uniform vec2 v2ScreenSunPos;
+uniform float fTime;
+uniform unsigned int iFrameID;
+
+uniform layout(r32f, binding = 0) writeonly image2D RadialBlurTexture;
+
+float Remap_tri(float v)
+{
+	float original = v * 2.0 - 1.0;
+	float z = max(-1.0, original / sqrt(abs(original)));
+	return z - sign(original) + 0.5;
+}
+
+void main(void)
+{
+	ivec2  fragCoords= ivec2(gl_GlobalInvocationID.xy);
+	vec2 texCoord = fragCoords / v2Resolution;
+
+	int Samples = 64;
+	float density=0.7;
+	float decay=0.974;
+//	float exposure=0.11;//0.11 for 32 samples
+	float exposure=0.075;// for 64 samples
+	float illuminationDecay = 1.0;
+	float weight=0.21;
+	vec2 radialBlurVector = ((v2ScreenSunPos - texCoord )* (1.0/ Samples)*density);
+
+//	vec3 BlueNoise = texture(tSampler2D_BlueNoise, vec2(fragCoords / 256.0)).xyz;
+//	BlueNoise = fract(BlueNoise + float(iFrameID % 256) * c_goldenRatioConjugate)*2-0.5;
+
+	vec4 BlueNoise = texture(tSampler2D_BlueNoise, (fragCoords /256.0)+fract(fTime)* 256);//  1/256=0.00390625
+	BlueNoise.r = (BlueNoise.r) * 2 - 0.5;
+
+	//float pixelDistance = clamp(1.0 - (distance(texCoord*vec2(1.0,0.5625), v2ScreenSunPos)),0,1);
+
+	float radialBlur = 0;
+	for (int i = 0; i < Samples; i+=1)
+	{
+		float s = (texture(tSampler2D_LightArea, texCoord + BlueNoise.r * radialBlurVector).r);//
+		s *=illuminationDecay*weight;
+		radialBlur += s;
+		texCoord += radialBlurVector;
+		illuminationDecay*=decay;
+	}
+	radialBlur *= exposure;
+
+	imageStore(RadialBlurTexture, ivec2(gl_GlobalInvocationID.xy), vec4((radialBlur),0.0,0.0,1.0));
+//	texCoord = fragCoords / v2Resolution;
+//	imageStore(RadialBlurTexture, ivec2(gl_GlobalInvocationID.xy), vec4(texture(tSampler2D_LightArea, texCoord).r, 0.0, 0.0, 1.0));
+}

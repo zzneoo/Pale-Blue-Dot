@@ -1,0 +1,72 @@
+# version 460 core
+
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+uniform layout(rgba8, binding = 0) writeonly image2D AntiAliasedImage;
+
+uniform sampler2D tSamplerCurrFrameNearest;
+uniform sampler2D tSamplerPrevFrame;
+uniform sampler2D tSamplerCurrDepth;
+uniform sampler2D tSamplerCurrVelocity;
+
+uniform mat4 m4PrevViewX;
+uniform mat4 m4ViewX;
+uniform mat4 m4ProjX;
+
+uniform vec2 v2Halton23;
+
+float linearize_depth(float d, float zNear, float zFar)
+{
+	float z_n = 2.0f * d - 1.0f;
+	return 2.0f * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
+}
+
+void main(void)
+{
+
+	ivec2 fragCoords = ivec2(gl_GlobalInvocationID.xy);
+	vec2 uv = fragCoords / vec2(1920.0, 1080.0);
+
+	float currentDepth = texelFetch(tSamplerCurrDepth, fragCoords,0).r;
+	vec2 velocity = texture(tSamplerCurrVelocity, uv).xy;//
+
+//	currentDepth = linearize_depth(currentDepth, 0.1, 20000.0)/20000;
+
+	vec3 ndc = vec3(vec2(uv), 1.0);
+	ndc = ndc * 2.0 - 1.0;
+
+	vec4 ViewSpace =  inverse(m4ProjX) * vec4(ndc, 1.0);
+	ViewSpace /= ViewSpace.w;
+	vec4 WorldPosition = inverse(m4ViewX) *ViewSpace;
+
+	vec4 q_cs = m4ProjX * m4ViewX * WorldPosition;
+	vec2 q_uv = (q_cs.xy / q_cs.w) * 0.5 + 0.5;
+
+	vec4 prevColor = texture(tSamplerCurrFrameNearest, q_uv);
+
+	vec4 currentColor = texture(tSamplerCurrFrameNearest, uv );//- (v2Halton23)
+
+	//imageStore(AntiAliasedImage, fragCoords, vec4(mix(vec3(currentColor),vec3(prevColor),0.9), 1.0));
+	//imageStore(AntiAliasedImage, fragCoords, vec4(vec3(currentColor), 1.0));
+	//if (v2Halton23.x == (0.9729724*2.0-1.0))
+	//{
+	//	imageStore(AntiAliasedImage, fragCoords, vec4(vec3(0.0,1.0,0.0), 1.0));
+	//}
+	//else
+	//{
+	//	imageStore(AntiAliasedImage, fragCoords, vec4(vec3(1.0, 0.0, 0.0), 1.0));
+	//}
+
+	//imageStore(AntiAliasedImage, fragCoords, vec4(abs(prevColor.xyz- currentColor.xyz), 1.0));
+
+	if (uv- q_uv == vec2(0.0))
+	{
+		imageStore(AntiAliasedImage, fragCoords, vec4(vec3(1.0,1.0,1.0), 1.0));
+	}	
+	else
+	{
+		imageStore(AntiAliasedImage, fragCoords, vec4(vec3(0.0, 0.0, 0.0), 1.0));
+	}
+}
+
+

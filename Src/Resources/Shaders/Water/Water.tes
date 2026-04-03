@@ -1,0 +1,53 @@
+#version 460 core
+
+layout(quads, fractional_even_spacing, ccw) in;
+
+uniform mat4 m4ModelX;
+uniform mat4 m4ViewX;
+uniform mat4 m4ProjX;
+
+uniform mat4 m4ModelViewProjX;
+
+//uniform vec3 v3SunPos;
+uniform vec3 v3EyePos;
+
+out vec3 toSunVector;
+out vec3 toEyeVector;
+
+//terrain
+uniform sampler2D tSampler_heightmap;
+
+in vec2 tcsTexCoords[];
+
+out vec2 tesTexCoords;
+out vec4 worldPos;
+out float distance;
+
+void main(void)
+{
+    vec2 tc1 = mix(tcsTexCoords[0], tcsTexCoords[1], gl_TessCoord.x);
+    vec2 tc2 = mix(tcsTexCoords[2], tcsTexCoords[3], gl_TessCoord.x);
+    vec2 tc = mix(tc2, tc1, gl_TessCoord.y);
+
+    vec4 p1 = mix(gl_in[0].gl_Position, gl_in[1].gl_Position, gl_TessCoord.x);
+    vec4 p2 = mix(gl_in[2].gl_Position, gl_in[3].gl_Position, gl_TessCoord.x);
+    vec4 p = mix(p2, p1, gl_TessCoord.y);
+
+    vec2 finalUVs = vec2(p.x,p.z)/256.0;
+
+    worldPos = m4ModelX * p;
+	vec4 eyeCoord = m4ViewX*worldPos;
+	distance=clamp(length(eyeCoord.xyz)*0.0002,0,1);
+
+    finalUVs*=50.0;
+
+    p.y = texture(tSampler_heightmap, (vec2(finalUVs))).r*0.05-3.85  ;
+
+    tesTexCoords = vec2(finalUVs);
+
+    //    toSunVector = v3SunPos;
+ //   toEyeVector = v3EyePos-worldPos.xyz;
+
+
+  //  gl_Position = m4ProjX*m4ViewX* m4ModelX* p;
+}

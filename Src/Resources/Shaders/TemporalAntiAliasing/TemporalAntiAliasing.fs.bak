@@ -1,0 +1,349 @@
+#version 460 core
+
+layout (location = 0 )out vec4 FragColor_frame;
+
+uniform sampler2D tSamplerCurrFrameNearest;
+uniform sampler2D tSamplerPrevFrame;
+uniform sampler2D tSamplerCurrDepth;
+uniform sampler2D tSamplerCurrVelocity;
+
+uniform mat4 m4PrevViewX;
+uniform mat4 m4ViewX;
+uniform mat4 m4ProjX;
+
+uniform vec4 v4Halton23;
+uniform uint bIsTAA;
+
+in vec2 TexCoord;
+in vec2 v2NDC;
+
+const float FLT_EPS = 0.00000001;
+
+
+
+vec3 find_closest_fragment_3x3(vec2 uv)
+{
+	vec2 dd = 1.0/vec2(1920.0,1080.0);
+	vec2 du = vec2(dd.x, 0.0);
+	vec2 dv = vec2(0.0, dd.y);
+
+	vec3 dbl = vec3(-1, -1, texture(tSamplerCurrDepth, uv - dv - du).x);
+	vec3 dbc = vec3( 0, -1, texture(tSamplerCurrDepth, uv - dv).x);
+	vec3 dbr = vec3( 1, -1, texture(tSamplerCurrDepth, uv - dv + du).x);
+
+	vec3 dml = vec3(-1, 0, texture(tSamplerCurrDepth, uv - du).x);
+	vec3 dmc = vec3( 0, 0, texture(tSamplerCurrDepth, uv).x);
+	vec3 dmr = vec3( 1, 0, texture(tSamplerCurrDepth, uv + du).x);
+
+	vec3 dtl = vec3(-1, 1, texture(tSamplerCurrDepth, uv + dv - du).x);
+	vec3 dtc = vec3( 0, 1, texture(tSamplerCurrDepth, uv + dv).x);
+	vec3 dtr = vec3( 1, 1, texture(tSamplerCurrDepth, uv + dv + du).x);
+
+	vec3 dmin = dtl;
+	if ((dmin.z < dtc.z)) dmin = dtc;
+	if ((dmin.z < dtr.z)) dmin = dtr;
+
+	if ((dmin.z < dml.z)) dmin = dml;
+	if ((dmin.z < dmc.z)) dmin = dmc;
+	if ((dmin.z < dmr.z)) dmin = dmr;
+
+	if ((dmin.z < dbl.z)) dmin = dbl;
+	if ((dmin.z < dbc.z)) dmin = dbc;
+	if ((dmin.z < dbr.z)) dmin = dbr;
+
+	return vec3(uv + dd.xy * dmin.xy, dmin.z);
+}
+
+
+vec3 rgb2ycocg(in vec3 rgb)
+{
+    float co = rgb.r - rgb.b;
+    float t = rgb.b + co / 2.0;
+    float cg = rgb.g - t;
+    float y = t + cg / 2.0;
+    return vec3(y, co, cg);
+}
+
+
+vec3 ycocg2rgb(in vec3 ycocg)
+{
+    float t = ycocg.r - ycocg.b / 2.0;
+    float g = ycocg.b + t;
+    float b = t - ycocg.g / 2.0;
+    float r = ycocg.g + b;
+    return vec3(r, g, b);
+}
+vec3 RGB2YCoCg(vec3 RGB)
+{
+    vec3 o;
+    o.x =  0.25*RGB.r + 0.5*RGB.g + 0.25*RGB.b;
+    o.y =  0.5*RGB.r - 0.5*RGB.b;
+    o.z = -0.25*RGB.r + 0.5*RGB.g - 0.25*RGB.b;
+    return o;
+}
+
+vec3 YCoCg2RGB(vec3 YCoCg)
+{
+    vec3 o;
+    o.r = YCoCg.x + YCoCg.y - YCoCg.z;
+    o.g = YCoCg.x + YCoCg.z;
+    o.b = YCoCg.x - YCoCg.y - YCoCg.z;
+    return o;
+}
+
+
+vec3 clipToAABB_Old(in vec3 cOld, in vec3 cNew, in vec3 centre, in vec3 halfSize) //variance
+{
+    if (all(lessThanEqual(abs(cOld - centre), halfSize))) {
+        return cOld;
+    }
+    
+    vec3 dir = (cNew - cOld);
+    vec3 near = centre - sign(dir) * halfSize;
+    vec3 tAll = (near - cOld) / dir;
+    float t = 1e20;
+    for (int i = 0; i < 3; i++) {
+        if (tAll[i] >= 0.0 && tAll[i] < t) {
+            t = tAll[i];
+        }
+    }
+    
+    if (t >= 1e20) {
+		return cOld;
+    }
+    return cOld + dir * t;
+}
+
+vec3 clip_aabbFast(vec3 aabb_min, vec3 aabb_max, vec3 p, vec3 q)
+{
+
+	// note: only clips towards aabb center (but fast!)
+		vec3 p_clip = 0.5 * (aabb_max + aabb_min);
+		vec3 e_clip = 0.5 * (aabb_max - aabb_min) + FLT_EPS;
+
+		vec3 v_clip = q - p_clip;
+		vec3 v_unit = v_clip / e_clip;
+		vec3 a_unit = abs(v_unit);
+		float ma_unit = max(a_unit.x, max(a_unit.y, a_unit.z));
+
+	if (ma_unit > 1.0)
+		return (p_clip) + v_clip / ma_unit;
+	else
+	return q;// point inside aabb
+}
+
+vec3 clip_aabb(vec3 aabb_min, vec3 aabb_max, vec3 p, vec3 q)
+{
+
+		vec3 r = q - p;
+		vec3 rmax = aabb_max - p.xyz;
+		vec3 rmin = aabb_min - p.xyz;
+
+		const float eps = FLT_EPS;
+
+		if (r.x > rmax.x + eps)
+			r *= (rmax.x / r.x);
+		if (r.y > rmax.y + eps)
+			r *= (rmax.y / r.y);
+		if (r.z > rmax.z + eps)
+			r *= (rmax.z / r.z);
+
+		if (r.x < rmin.x - eps)
+			r *= (rmin.x / r.x);
+		if (r.y < rmin.y - eps)
+			r *= (rmin.y / r.y);
+		if (r.z < rmin.z - eps)
+			r *= (rmin.z / r.z);
+
+		return p + r;
+}
+
+vec3 ClipToAABB( vec3 inHistoryColour, vec3 inCurrentColour, vec3 inBBCentre, vec3 inBBExtents )
+{
+	const float VARIANCE_INTERSECTION_MAX_T = 1;
+
+    vec3 direction = inCurrentColour - inHistoryColour;
+
+    // calculate intersection for the closest slabs from the center of the AABB in HistoryColour direction
+    vec3 intersection = ( ( inBBCentre - sign( direction ) * inBBExtents ) - inHistoryColour ) / direction;
+
+    // clip unexpected T values
+    vec3 possibleT = (intersection.x>=0.0||intersection.y>=0.0||intersection.z>=0.0) ? intersection : vec3(VARIANCE_INTERSECTION_MAX_T );
+    float t = min( VARIANCE_INTERSECTION_MAX_T, min( possibleT.x, min( possibleT.y, possibleT.z ) ) );
+
+    // final history colour
+    return vec3( t < VARIANCE_INTERSECTION_MAX_T ? inHistoryColour + direction * t : inHistoryColour );
+}
+
+vec4 BiCubicCatmullRom5Tap(sampler2D sampler, vec2 P,vec2 textureSize)
+{
+
+    vec2 Weight[3];
+	vec2 Sample[3];
+    
+    vec2 InvSize = vec2(1.0/textureSize);
+
+    vec2 UV =  P * textureSize;
+    vec2 tc = floor(UV - 0.5) + 0.5;
+	vec2 f = UV - tc;
+	vec2 f2 = f * f; 
+	vec2 f3 = f2 * f;
+    
+    vec2 w0 = f2 - 0.5 * (f3 + f);
+	vec2 w1 = 1.5 * f3 - 2.5 * f2 + vec2(1.);
+	vec2 w3 = 0.5 * (f3 - f2);
+	vec2 w2 = vec2(1.) - w0 - w1 - w3;
+    
+    Weight[0] = w0;
+	Weight[1] = w1 + w2;
+	Weight[2] = w3;
+
+	Sample[0] = tc - vec2(1.);
+	Sample[1] = tc + w2 / Weight[1];
+	Sample[2] = tc + vec2(2.);
+
+	Sample[0] *= InvSize;
+	Sample[1] *= InvSize;
+	Sample[2] *= InvSize;
+
+    float sampleWeight[5];
+    sampleWeight[0] = Weight[1].x * Weight[0].y;
+    sampleWeight[1] = Weight[0].x * Weight[1].y;
+    sampleWeight[2] = Weight[1].x * Weight[1].y;
+    sampleWeight[3] = Weight[2].x * Weight[1].y;
+    sampleWeight[4] = Weight[1].x * Weight[2].y;
+
+    vec4 Ct = texture(sampler, vec2(Sample[1].x, Sample[0].y)) * sampleWeight[0];    
+    vec4 Cl = texture(sampler, vec2(Sample[0].x, Sample[1].y)) * sampleWeight[1];    
+    vec4 Cc = texture(sampler, vec2(Sample[1].x, Sample[1].y)) * sampleWeight[2];    
+    vec4 Cr = texture(sampler, vec2(Sample[2].x, Sample[1].y)) * sampleWeight[3];    
+    vec4 Cb = texture(sampler, vec2(Sample[1].x, Sample[2].y)) * sampleWeight[4];
+    
+    float WeightMultiplier = 1./(sampleWeight[0]+sampleWeight[1]+sampleWeight[2]+sampleWeight[3]+sampleWeight[4]);
+    
+    
+    return (Ct+Cl+Cc+Cr+Cb)*WeightMultiplier;   
+}
+
+vec2 v2BiCubicCatmullRom5Tap(sampler2D sampler, vec2 P,vec2 textureSize)
+{
+
+    vec2 Weight[3];
+	vec2 Sample[3];
+    
+    vec2 InvSize = vec2(1.0/textureSize);
+
+    vec2 UV =  P * textureSize;
+    vec2 tc = floor(UV - 0.5) + 0.5;
+	vec2 f = UV - tc;
+	vec2 f2 = f * f; 
+	vec2 f3 = f2 * f;
+    
+    vec2 w0 = f2 - 0.5 * (f3 + f);
+	vec2 w1 = 1.5 * f3 - 2.5 * f2 + vec2(1.);
+	vec2 w3 = 0.5 * (f3 - f2);
+	vec2 w2 = vec2(1.) - w0 - w1 - w3;
+    
+    Weight[0] = w0;
+	Weight[1] = w1 + w2;
+	Weight[2] = w3;
+
+	Sample[0] = tc - vec2(1.);
+	Sample[1] = tc + w2 / Weight[1];
+	Sample[2] = tc + vec2(2.);
+
+	Sample[0] *= InvSize;
+	Sample[1] *= InvSize;
+	Sample[2] *= InvSize;
+
+    float sampleWeight[5];
+    sampleWeight[0] = Weight[1].x * Weight[0].y;
+    sampleWeight[1] = Weight[0].x * Weight[1].y;
+    sampleWeight[2] = Weight[1].x * Weight[1].y;
+    sampleWeight[3] = Weight[2].x * Weight[1].y;
+    sampleWeight[4] = Weight[1].x * Weight[2].y;
+
+    vec2 Ct = texture(sampler, vec2(Sample[1].x, Sample[0].y)).xy * sampleWeight[0];    
+    vec2 Cl = texture(sampler, vec2(Sample[0].x, Sample[1].y)).xy * sampleWeight[1];    
+    vec2 Cc = texture(sampler, vec2(Sample[1].x, Sample[1].y)).xy * sampleWeight[2];    
+    vec2 Cr = texture(sampler, vec2(Sample[2].x, Sample[1].y)).xy * sampleWeight[3];    
+    vec2 Cb = texture(sampler, vec2(Sample[1].x, Sample[2].y)).xy * sampleWeight[4];
+    
+    float WeightMultiplier = 1./(sampleWeight[0]+sampleWeight[1]+sampleWeight[2]+sampleWeight[3]+sampleWeight[4]);
+    
+    
+    return (Ct+Cl+Cc+Cr+Cb)*WeightMultiplier;   
+}
+
+void main(void)
+{
+
+	vec2 uv = TexCoord;
+	vec2 jitterCur =(v4Halton23.xy)*vec2(0.00052083333,0.00092592592)*2.0;
+	//vec2 jitterPrev =(v4Halton23.zw)*vec2(0.00052083333,0.00092592592)*5.0;
+
+	vec3 closestFragment = find_closest_fragment_3x3(uv);
+	vec2 velocity = texture(tSamplerCurrVelocity, closestFragment.xy).xy;//
+	vec2 PrevUV = uv -velocity;
+	//vec4 prevColor = texture(tSamplerPrevFrame, uv-velocity);
+
+	//vec4 currentColor = texture(tSamplerCurrFrameNearest, ((uv*2.0-1.0)-jitter )*0.5+0.5 );//1.0/(1920.0,1080.0)
+
+	vec4 FinalColor;
+
+	if((abs(PrevUV.x-0.5)<0.5)||(abs(PrevUV.y-0.5)<0.5))
+	{
+		vec4 currentColor = texture(tSamplerCurrFrameNearest, ((uv*2.0-1.0)-jitterCur )*0.5+0.5  );//1.0/(1920.0,1080.0)
+		vec4 prevColor = BiCubicCatmullRom5Tap(tSamplerPrevFrame,PrevUV,vec2(1920.0,1080.0));
+
+		vec2 fcOffsets[4];
+		fcOffsets[0] = vec2(-1.0,  0.0);
+		fcOffsets[1] = vec2( 1.0,  0.0);
+		fcOffsets[2] = vec2( 0.0, -1.0);
+		fcOffsets[3] = vec2( 0.0,  1.0);
+		
+		vec4 CurrJittered = texture(tSamplerCurrFrameNearest, uv);
+		vec4 mean = vec4(RGB2YCoCg(CurrJittered.rgb),CurrJittered.a);
+		vec4 stddev = mean * mean;
+		for (int i = 0; i < 4; i++)
+		{
+			vec4 tempColor = texture(tSamplerCurrFrameNearest, uv + fcOffsets[i]*vec2(0.00052083333,0.00092592592));
+			vec4 c = vec4(RGB2YCoCg(tempColor.rgb),tempColor.a);
+			mean += c;
+			stddev += c * c;
+		}
+		mean /= 5.0;
+		stddev = sqrt(stddev / 5.0 - mean * mean);
+
+		vec4 colorMin =mean-stddev;
+		vec4 colorMax =mean+stddev;
+
+
+		prevColor = (clamp( vec4(RGB2YCoCg(prevColor.rgb),prevColor.a), ( colorMin ), ( colorMax ) ));
+	  //  prevColor.rgb = (ClipToAABB(RGB2YCoCg(prevColor.rgb), RGB2YCoCg(currentColor.rgb), mean, stddev));
+	  // prevColor.rgb = (clip_aabb(colorMin,colorMax,mean,RGB2YCoCg(prevColor.rgb)));
+
+		//prevColor.rgb = RGB2YCoCg(prevColor.rgb);
+		currentColor.rgb = RGB2YCoCg(currentColor.rgb);
+
+  		float luminanceCurr = currentColor.r;
+		float luminancePrev = prevColor.r;
+
+		float unbiased_diff = abs(luminanceCurr - luminancePrev) / max(luminanceCurr, max(luminancePrev, 0.2));
+		float unbiased_weight = 1.0 - unbiased_diff;
+		float unbiased_weight_sqr = unbiased_weight * unbiased_weight;
+		float k_feedback = mix(0.88, 0.97, unbiased_weight_sqr)*bIsTAA;
+
+	//	FragColor_frame = vec4(abs(prevColor.xyz- currentColor.xyz), 1.0);
+		FinalColor = vec4(mix(YCoCg2RGB(vec3(currentColor)),YCoCg2RGB(vec3(prevColor)),k_feedback),mix(currentColor.a,prevColor.a,0.9));
+	//	FragColor_frame = vec4(vec3(velocity,0.0), 1.0);
+
+	//FragColor_frame =vec4(currentColor);
+	}
+	else
+	{
+		FinalColor = texture(tSamplerCurrFrameNearest, ((uv*2.0-1.0)-jitterCur )*0.5+0.5  );
+	}
+
+	FragColor_frame = FinalColor;
+}

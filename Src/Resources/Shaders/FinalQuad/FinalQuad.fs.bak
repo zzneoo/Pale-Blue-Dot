@@ -1,0 +1,29 @@
+#version 460 core
+
+out vec4 FragColor;
+
+uniform sampler2D tSampler0;
+
+in vec2 TexCoord;
+
+float linearize_depth(float d, float zNear, float zFar)
+{
+	float z_n = 2.0f * d - 1.0f;
+	return 2.0f * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
+}
+float linearize_depthVulkan(float d,float zNear,float zFar)
+{
+    return zNear * zFar / (zFar + d * (zNear - zFar));
+}
+
+void main(void)
+{
+	vec4 finalColor=texture(tSampler0,TexCoord);
+	
+	float fNear = 10.0;
+	float fFar = fNear+10000.0;
+	float depth = linearize_depthVulkan(texture(tSampler0,TexCoord).r,fNear,fFar)/(fFar-fNear);
+	//float depth = pow(texture(tSampler0,TexCoord).r,5.2);
+	FragColor = vec4(depth);
+	FragColor = vec4(pow(finalColor.r,0.2));
+}

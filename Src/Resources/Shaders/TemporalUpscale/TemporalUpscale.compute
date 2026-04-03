@@ -1,0 +1,57 @@
+#version 460 core
+
+uniform sampler2D tSamplerCurrFrameNearest;
+uniform sampler2D tSamplerCurrFrameLinear;
+uniform sampler2D tSamplerPrevFrame;
+uniform sampler2D tSamplerCurrVelocity;
+
+uniform vec3 v3CameraPosition;
+
+uniform mat4 m4ProjX;
+uniform mat4 m4PrevViewX;
+uniform mat4 m4ViewX;
+
+uniform float fTime;
+uniform int iBlockPixelID;
+
+layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+uniform layout(rgba8, binding = 0) writeonly image2D TemporalUpscaleImage;
+
+void main(void)
+{
+	vec2 Resolution=vec2(480.0,270.0);
+	vec2 Resolution2=vec2(1920.0,1080.0);
+
+	ivec2 pixelOffset;
+	pixelOffset.x = iBlockPixelID % 4;
+	pixelOffset.y = iBlockPixelID / 4;
+
+	ivec2 fragCoords = ivec2(gl_GlobalInvocationID.xy);
+
+	vec2 TexCoord = (fragCoords+vec2(0.5)) / Resolution2;
+
+	vec2 veclocity=texture(tSamplerCurrVelocity,TexCoord).xy;
+
+	ivec2 tempID= fragCoords%4;
+	int id=tempID.y*4+tempID.x;
+
+	vec2 prevUV=TexCoord-veclocity;
+
+
+
+	vec4 finalColor;
+
+	if(id== iBlockPixelID)
+	{
+		finalColor=texture(tSamplerCurrFrameNearest,TexCoord);
+	}
+	else     
+	{
+		finalColor=(abs(prevUV.x-0.5)>0.5)||(abs(prevUV.y-0.5)>0.5)?texture(tSamplerCurrFrameNearest,TexCoord):texture(tSamplerPrevFrame,prevUV);//velocity points outside the screen  //University of Gothenburg
+	}
+
+	//finalColor =mix(finalColor, texture(tSamplerPrevFrame, prevUV),0.05);
+	//FragColor =texture(tSamplerCurrFrameLinear,TexCoord);
+     imageStore(TemporalUpscaleImage, fragCoords , finalColor);
+
+}

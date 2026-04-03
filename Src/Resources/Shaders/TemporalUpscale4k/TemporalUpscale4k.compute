@@ -1,0 +1,97 @@
+#version 460 core
+
+const float FLT_EPS = 0.00000001;
+
+uniform sampler2D tSamplerCurrFrameLinear;
+uniform sampler2D tSamplerPrevFrame;
+
+uniform sampler2D tSamplerCurrVelocity;
+
+uniform int iBlockPixelID;
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+uniform layout(rgba8, binding = 0) writeonly image2D TemporalUpscaleImage;
+
+vec4 BiCubicCatmullRom5Tap(sampler2D sampler, vec2 P,vec2 textureSize)
+{
+
+    vec2 Weight[3];
+	vec2 Sample[3];
+    
+    vec2 InvSize = vec2(1.0/textureSize);
+
+    vec2 UV =  P * textureSize;
+    vec2 tc = floor(UV - 0.5) + 0.5;
+	vec2 f = UV - tc;
+	vec2 f2 = f * f; 
+	vec2 f3 = f2 * f;
+    
+    vec2 w0 = f2 - 0.5 * (f3 + f);
+	vec2 w1 = 1.5 * f3 - 2.5 * f2 + vec2(1.);
+	vec2 w3 = 0.5 * (f3 - f2);
+	vec2 w2 = vec2(1.) - w0 - w1 - w3;
+    
+    Weight[0] = w0;
+	Weight[1] = w1 + w2;
+	Weight[2] = w3;
+
+	Sample[0] = tc - vec2(1.);
+	Sample[1] = tc + w2 / Weight[1];
+	Sample[2] = tc + vec2(2.);
+
+	Sample[0] *= InvSize;
+	Sample[1] *= InvSize;
+	Sample[2] *= InvSize;
+
+    float sampleWeight[5];
+    sampleWeight[0] = Weight[1].x * Weight[0].y;
+    sampleWeight[1] = Weight[0].x * Weight[1].y;
+    sampleWeight[2] = Weight[1].x * Weight[1].y;
+    sampleWeight[3] = Weight[2].x * Weight[1].y;
+    sampleWeight[4] = Weight[1].x * Weight[2].y;
+
+    vec4 Ct = texture(sampler, vec2(Sample[1].x, Sample[0].y)) * sampleWeight[0];    
+    vec4 Cl = texture(sampler, vec2(Sample[0].x, Sample[1].y)) * sampleWeight[1];    
+    vec4 Cc = texture(sampler, vec2(Sample[1].x, Sample[1].y)) * sampleWeight[2];    
+    vec4 Cr = texture(sampler, vec2(Sample[2].x, Sample[1].y)) * sampleWeight[3];    
+    vec4 Cb = texture(sampler, vec2(Sample[1].x, Sample[2].y)) * sampleWeight[4];
+    
+    float WeightMultiplier = 1./(sampleWeight[0]+sampleWeight[1]+sampleWeight[2]+sampleWeight[3]+sampleWeight[4]);
+    
+    
+    return (Ct+Cl+Cc+Cr+Cb)*WeightMultiplier;   
+}
+
+void main(void)
+{
+	vec2 Resolution=vec2(3840.0,2160.0);
+
+	ivec2 fragCoords = ivec2(gl_GlobalInvocationID.xy);
+
+	vec2 TexCoord = (fragCoords+vec2(0.5)) / Resolution;
+
+	vec2 veclocity=texture(tSamplerCurrVelocity,TexCoord).xy;
+
+	ivec2 tempID= fragCoords%4;
+	int id=tempID.y*4+tempID.x;
+
+	vec2 prevUV=TexCoord-veclocity;
+
+
+	vec4 finalColor;
+	vec4 CurrentFrame = BiCubicCatmullRom5Tap(tSamplerCurrFrameLinear,TexCoord,vec2(1920,1080));
+	vec4 PreviousFrame;
+	if(id==iBlockPixelID)
+	{	
+		finalColor=CurrentFrame;	
+	}
+	else     
+	{
+		//finalColor=(abs(prevUV.x-0.5)>0.5)||(abs(prevUV.y-0.5)>0.5)?texture(tSamplerCurrFrameLinear,TexCoord):vec4(BiCubicCatmullRom5Tap(tSamplerPrevFrame,prevUV,vec2(3840,2160)),1.0);//velocity points outside the screen  //University of Gothenburg
+		finalColor=(abs(prevUV.x-0.5)>0.5)||(abs(prevUV.y-0.5)>0.5)?CurrentFrame:BiCubicCatmullRom5Tap(tSamplerPrevFrame,prevUV,vec2(3840,2160));//velocity points outside the screen  //University of Gothenburg
+		//finalColor=(abs(prevUV.x-0.5)>0.5)||(abs(prevUV.y-0.5)>0.5)?texture(tSamplerCurrFrameLinear,TexCoord):texture(tSamplerPrevFrame,prevUV);//velocity points outside the screen  //University of Gothenburg
+	}
+	finalColor = mix(CurrentFrame,finalColor,0.9);
+     imageStore(TemporalUpscaleImage, fragCoords , finalColor);
+
+}

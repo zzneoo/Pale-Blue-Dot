@@ -1,0 +1,37 @@
+#version 460 core
+
+layout (location = 0 )out vec4 FragColor_frame;
+
+uniform sampler2D tSamplerCurrDepth;
+
+uniform mat4 m4PrevViewX;
+uniform mat4 m4ProjX;
+uniform vec2 v2NearFar;
+uniform vec3 v3EyePos;
+
+in vec2 TexCoord;
+in vec3 v3ViewRay;
+
+float linearize_depth(float d, float zNear, float zFar)
+{
+	float z_n = 2.0 * d - 1.0;
+	return 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
+}
+
+void main(void)
+{
+
+	vec2 uv = TexCoord;
+	float currentDepth = texture(tSamplerCurrDepth, uv).r;
+	float linearDepth = linearize_depth(currentDepth,v2NearFar.x,v2NearFar.y);
+	
+	vec4 WorldPosition = vec4(v3EyePos+normalize(v3ViewRay),1.0);
+	vec4 ReprojectedPrevClipSpacePosition = m4ProjX * m4PrevViewX * WorldPosition;
+	
+	vec2 ReprojectedPrevNDC = ReprojectedPrevClipSpacePosition.xy/ReprojectedPrevClipSpacePosition.w;
+	vec2 ReprojectedPrevUV = ReprojectedPrevNDC * 0.5 + 0.5 ;
+	
+	vec2 ScreenSpaceVelocity = TexCoord - ReprojectedPrevUV;
+
+	FragColor_frame = vec4(ScreenSpaceVelocity,0.0,1.0);
+}

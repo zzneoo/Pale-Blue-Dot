@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['id_527',['id',['../structai_export_format_desc.html#afe216eaea3a04abca041e5c253f94bbf',1,'aiExportFormatDesc']]],
+  ['importer_528',['Importer',['../class_assimp_1_1_importer.html',1,'Assimp::Importer'],['../class_assimp_1_1_importer.html#a2c207299ed05f1db1ad1e6dab005f719',1,'Assimp::Importer::Importer()'],['../class_assimp_1_1_importer.html#a31c6cd729b79d586504dabe30353e39a',1,'Assimp::Importer::Importer(const Importer &amp;other)=delete']]],
+  ['importer_2ehpp_529',['Importer.hpp',['../_importer_8hpp.html',1,'']]],
+  ['importerdesc_2eh_530',['importerdesc.h',['../importerdesc_8h.html',1,'']]],
+  ['importerunits_531',['importerUnits',['../class_assimp_1_1_base_importer.html#ac43f3495d597a22da47ea894f5432016',1,'Assimp::BaseImporter']]],
+  ['incptr_532',['IncPtr',['../class_assimp_1_1_stream_reader.html#acb14681435190e35ffbdbd3f4239c774',1,'Assimp::StreamReader']]],
+  ['info_533',['Info',['../class_assimp_1_1_logger.html#acd0b52a87d6fc11e957ed2c6e2ad75b6aa3377a574928b86f7de55c5df154f461',1,'Assimp::Logger::Info()'],['../class_assimp_1_1_logger.html#a12b8a125083c47ac0bb6056f00761e52',1,'Assimp::Logger::info(const char *message)']]],
+  ['integer_5fpow_534',['integer_pow',['../namespace_assimp.html#a7232eb06a7d7532801382998c0853018',1,'Assimp']]],
+  ['internreadfile_535',['InternReadFile',['../class_assimp_1_1_base_importer.html#ac67d9f5ceb26353d27d6be06cccad398',1,'Assimp::BaseImporter']]],
+  ['iostream_536',['IOStream',['../class_assimp_1_1_i_o_stream.html',1,'Assimp::IOStream'],['../class_assimp_1_1_i_o_stream.html#a0be5cf1642597edeffe5360025ddf50f',1,'Assimp::IOStream::IOStream()']]],
+  ['iostream_2ehpp_537',['IOStream.hpp',['../_i_o_stream_8hpp.html',1,'']]],
+  ['iostreambuffer_538',['IOStreamBuffer',['../class_assimp_1_1_i_o_stream_buffer.html',1,'Assimp::IOStreamBuffer&lt; T &gt;'],['../class_assimp_1_1_i_o_stream_buffer.html#ad360ca023c5112f6f8f25ded92c3c9f6',1,'Assimp::IOStreamBuffer::IOStreamBuffer()']]],
+  ['iosystem_539',['IOSystem',['../class_assimp_1_1_i_o_system.html',1,'Assimp::IOSystem'],['../class_assimp_1_1_i_o_system.html#a2c746aa09cc29cea1d2d6a5087bc6e50',1,'Assimp::IOSystem::IOSystem()']]],
+  ['iosystem_2ehpp_540',['IOSystem.hpp',['../_i_o_system_8hpp.html',1,'']]],
+  ['is_5fnot_5fqnan_541',['is_not_qnan',['../qnan_8h.html#a4b93a2d042b065c5b0c068626dc54ed2',1,'qnan.h']]],
+  ['is_5fqnan_542',['is_qnan',['../qnan_8h.html#aba07171feddf4c9513c2424a630b03a5',1,'is_qnan(float in):&#160;qnan.h'],['../qnan_8h.html#a682b18f4d3112793d4f7dd5c1a117c67',1,'is_qnan(double in):&#160;qnan.h']]],
+  ['is_5fspecial_5ffloat_543',['is_special_float',['../qnan_8h.html#ae81ad0f99eba1f73bad78e48a16df827',1,'is_special_float(float in):&#160;qnan.h'],['../qnan_8h.html#abefbb78762da57066abee01f541de2be',1,'is_special_float(double in):&#160;qnan.h']]],
+  ['isdefaultiohandler_544',['IsDefaultIOHandler',['../class_assimp_1_1_exporter.html#a78735bb79173a37f9d3126577244be7b',1,'Assimp::Exporter::IsDefaultIOHandler()'],['../class_assimp_1_1_importer.html#ad2c940def9c4d01709e44a4e781e757d',1,'Assimp::Importer::IsDefaultIOHandler()']]],
+  ['isdefaultprogresshandler_545',['IsDefaultProgressHandler',['../class_assimp_1_1_importer.html#a34062906cb6b9af8abaeda36737d14ae',1,'Assimp::Importer']]],
+  ['isextensionsupported_546',['IsExtensionSupported',['../class_assimp_1_1_importer.html#a22bbe0ca29cc685b110b6853dd1e4157',1,'Assimp::Importer::IsExtensionSupported(const char *szExtension) const'],['../class_assimp_1_1_importer.html#a4d49e3c8ecf28336d78f9f5e502990ce',1,'Assimp::Importer::IsExtensionSupported(const std::string &amp;szExtension) const']]],
+  ['ismoothgroup_547',['iSmoothGroup',['../struct_face_with_smoothing_group.html#a686bc8272adeb1b5c376483ebfab3ec1',1,'FaceWithSmoothingGroup']]],
+  ['isnulllogger_548',['isNullLogger',['../class_assimp_1_1_default_logger.html#abebc7ee702a2a2dde765e771948400c6',1,'Assimp::DefaultLogger']]],
+  ['isopen_549',['isOpen',['../class_assimp_1_1_zip_archive_i_o_system.html#a164dbcbdb69cf237d525927567c78616',1,'Assimp::ZipArchiveIOSystem']]]
+];

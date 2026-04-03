@@ -1,0 +1,363 @@
+#version 460 core
+
+uniform float fEarthRadius;
+uniform float fShadowFactor;
+
+uniform vec2 v2InnerOuterRadius;
+
+#define cld_march_steps_max (256)//256 offline
+
+//float earthRadius = 6371.0;
+float sphereInnerRadius = v2InnerOuterRadius.x * fEarthRadius * 0.0031446541;
+float sphereOuterRadius = v2InnerOuterRadius.y * fEarthRadius * 0.002;
+
+#define EARTH_RADIUS fEarthRadius
+#define SPHERE_INNER_RADIUS (EARTH_RADIUS + sphereInnerRadius)
+#define SPHERE_OUTER_RADIUS (SPHERE_INNER_RADIUS + sphereOuterRadius)
+#define SPHERE_DELTA float(SPHERE_OUTER_RADIUS - SPHERE_INNER_RADIUS)
+
+vec3 sphereCenter = vec3(0.0, -fEarthRadius, 0.0);
+
+#define STRATUS_GRADIENT vec4(0.0, 0.09, 0.11, 0.15)
+#define STRATOCUMULUS_GRADIENT vec4(0.01, 0.2, 0.48, 0.625)
+#define CUMULUS_GRADIENT vec4(0.02, 0.1, 0.5, 1.0)
+
+layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+
+uniform layout(rgba16f, binding = 0) writeonly image2D cloudShadowMapImage;
+
+//sampler2D
+uniform sampler2D tSampler2D_WeatherMap;
+uniform sampler3D tSampler3D_PerlinWorley;
+
+//matrices
+uniform mat4 m4LightViewProjX;
+uniform mat4 m4InvViewX;
+uniform mat4 m4PrevViewX;
+uniform mat4 m4InvProjX;
+uniform mat4 m4ProjX;
+//vectors
+uniform vec3 v3CameraPosition;
+//int
+uniform int iPixelID;
+
+float linearize_depth(float d, float zNear, float zFar)
+{
+	float z_n = 2.0f * d - 1.0f;
+	return 2.0f * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
+}
+
+float linearize_depthVulkan(float d, float zNear, float zFar)
+{
+	return zNear * zFar / (zFar + d * (zNear - zFar));
+}
+
+struct ray_t
+{
+	vec3 origin;
+	vec3 direction;
+	float step;
+};
+
+struct volume_sampler_t
+{
+	vec3 origin; // start of ray
+	vec3 pos; // current pos of acccumulation ray
+	float height;
+	float T; // transmitance
+	vec3 C; // color
+	float alpha;
+	vec3 worldPos;
+};
+
+float getHeightFraction(vec3 inPos)
+{
+	return (length(inPos- sphereCenter) - SPHERE_INNER_RADIUS) / (SPHERE_DELTA);
+}
+
+vec2 getUVProjection(vec2 p)
+{
+	return (p/ SPHERE_INNER_RADIUS)  ;
+}
+vec2 getUVProjection(vec2 p, float Multiplier)
+{
+	return ((p / SPHERE_OUTER_RADIUS) * Multiplier) + 0.5;
+}
+
+float Remap(float val, float oldMin, float oldMax, float newMin, float newMax)
+{
+	return newMin + ((val - oldMin) / (oldMax - oldMin)) * (newMax - newMin);
+}
+
+vec3 IntersectSphereFromInside(const vec3 pos, const vec3 dir, const float r)
+{
+	//for infinite cloud Distance
+	//sphereCenter.xz = pos.xz;
+	//sphereCenter.y = pos.y- EARTH_RADIUS;
+
+	//sphereCenter =  vec3(0.0, -EARTH_RADIUS,0.0);
+	//sphereCenter.xz = pos.xz;
+
+	vec3 L = pos - sphereCenter;
+
+	float a = dot(dir, dir);
+	float b = 2.0 * dot(dir, L);
+	float c = dot(L, L) - (r * r);
+	float d = sqrt((b * b) - 4.0 * a * c);
+
+	//float p = -b - d;
+	float p2 = -b + d;
+
+	float t = p2/ (2.0 * a);
+	t = max(0, t);
+	return pos + dir * t;
+}
+
+bool IntersectSphereFromOutside(const vec3 pos, const vec3 dir, const float r ,out vec3 p1 , out vec3 p2 ,out float tMin ,out float tMax)
+{
+	//for infinite cloud Distance
+	//sphereCenter.xz = pos.xz;
+	//sphereCenter.y = pos.y- EARTH_RADIUS;
+
+	//sphereCenter = vec3(0.0, -EARTH_RADIUS, 0.0);
+	//sphereCenter.xz = pos.xz;
+
+	vec3 L = pos - sphereCenter;
+
+	float a = dot(dir, dir);
+	float b = 2.0 * dot(dir, L);
+	float c = dot(L, L) - (r * r);
+	float d = (b * b) - 4.0 * a * c;
+
+	if (d < 0.0)
+	{
+		return false;
+	}
+
+	d = sqrt(d);
+
+	float t1 = -b - d;
+	float t2 = -b + d;
+
+	//point 1
+	float t = t1 / (2.0 * a);
+	t = max(0, t);
+
+	p1 = pos + dir * t;
+
+	//tmin for firstDepth
+	tMin = t;
+
+	//point 2
+	      t = t2 / (2.0 * a);
+	t = max(0, t);
+
+	p2 = pos + dir * t;
+
+	//tMax for firstDepth
+	tMax = t;
+
+	return true;
+}
+
+float getDensityHeightGradientCloud(float heightFraction, float cloudType)
+{
+	float stratusFactor = 1.0 - clamp(cloudType * 2.0, 0.0, 1.0);
+	float stratoCumulusFactor = 1.0 - abs(cloudType - 0.5) * 2.0;
+	float cumulusFactor = clamp(cloudType - 0.5, 0.0, 1.0) * 2.0;
+
+	vec4 baseGradient = stratusFactor * STRATUS_GRADIENT + stratoCumulusFactor * STRATOCUMULUS_GRADIENT + cumulusFactor * CUMULUS_GRADIENT;
+	//return Remap(heightFraction, baseGradient.x, baseGradient.y, 0.0, 1.0) * Remap(heightFraction, baseGradient.z, baseGradient.w, 1.0, 0.0);
+	return smoothstep(baseGradient.x, baseGradient.y, heightFraction) - smoothstep(baseGradient.z, baseGradient.w, heightFraction);
+}
+
+float ZzNeoCloudDensity(vec3 cloudPos, float LOD,bool expensive,float HeightFract)//LOD 0 to 1
+{
+
+
+	vec2 cloudPosUV = getUVProjection(cloudPos.xz) * 10.0 * 0.470;
+	vec4 WeatherData = texture(tSampler2D_WeatherMap, (cloudPosUV + 1000.0));
+
+	float HD = clamp(getDensityHeightGradientCloud(HeightFract,  1.0 ), 0, 1);//experimental //1.0 - pow(cutoff+0.0005, 4.0)
+
+	return max(clamp(WeatherData.r* WeatherData.r,0.0,1.0),0)* HD;
+}
+
+float ZzCloudDensity(vec3 cloudPos, float HeightFract)
+{
+	vec2 WeatherUV = getUVProjection(cloudPos.xz, 16);
+	vec2 LowWeatherUV = getUVProjection(cloudPos.xz, 1);
+	vec2 WeatherUVSpace = getUVProjection(cloudPos.xz, 4);
+	vec2 CloudCoverage = texture(tSampler2D_WeatherMap, WeatherUV).rb;
+	vec2 LowCloudCoverage = texture(tSampler2D_WeatherMap, WeatherUVSpace).rb;
+	float HD = getDensityHeightGradientCloud(HeightFract, 1.0);
+	float HD_variation = getDensityHeightGradientCloud(HeightFract, 0.14);
+
+	vec4 noise = texture(tSampler3D_PerlinWorley, vec3(LowWeatherUV * 100.0, HeightFract * 0.147 * v2InnerOuterRadius.y));
+	vec4 noiseHigh = texture(tSampler3D_PerlinWorley, 6.97 * vec3(LowWeatherUV * 100.0, HeightFract * 0.147 * v2InnerOuterRadius.y));
+
+	float baseWorleyFBM = dot(noise.rgb, vec3(0.725, 0.1875, 0.0875));
+	float noiseHighFBM = dot(noiseHigh.rgb, vec3(0.625, 0.25, 0.125));
+	float baseCloud = CloudCoverage.r * HD;
+
+	baseCloud = Remap(baseCloud, (1.0 - baseWorleyFBM), 1.0, (0.0), 1.0);//basecloud shape
+	baseCloud = Remap(baseCloud, (1.0 - noiseHighFBM) * 0.403, 1.0, (0.0), 1.0);//basecloud shape
+
+//	float Density = mix(noise.a,baseCloud, smoothstep(0.2,0.3, HeightFract)) * pow(HeightFract, 0.9);//space
+	float Density = baseCloud * pow(HeightFract, 0.9) * CloudCoverage.r;//space
+
+	return Density * 0.15;
+	//return LowCloudCoverage.g;
+}
+
+void main(void)
+{
+	//uint ID = (gl_LocalInvocationID.y % 4 * gl_WorkGroupSize.x/4 ) + gl_LocalInvocationID.x % 4;
+	vec3 startPos, endPos;
+	vec2 temporalUV;
+
+	ivec2 fragCoords = ivec2(gl_GlobalInvocationID.xy);
+
+	vec2 resolution = vec2(4096.0);
+
+	vec2 pixelOffset;
+	pixelOffset.x = iPixelID % 16;
+	pixelOffset.y = iPixelID / 16;
+
+	temporalUV = ((fragCoords * 16) + 0.5 + pixelOffset);
+
+	//vec2 uvCoords = temporalUV / resolution;//reprojection
+	vec2 uvCoords = (fragCoords+0.5) / resolution;//offline
+	vec3 camPos = v3CameraPosition;
+
+	//camPos = vec3(0.0, 10.0, 0.0);
+
+	vec2 ndcRay = (2.0 * (uvCoords)-1.0);//-1 to 1
+	//ndcRay.x *= 1920.0 / 1080.0;
+	vec4 ray_view = m4InvProjX *  vec4(ndcRay, 1.0, 1.0);
+	//ray_view = vec4(ray_view.x / -ray_view.z, ray_view.y / ray_view.z, -1.0, 0.0);
+	ray_view = vec4(ray_view.xyz, 0.0);
+
+	vec3 worldDir = (m4InvViewX * ray_view).xyz;
+	worldDir = normalize(worldDir);
+
+	ray_t ray = { camPos,worldDir,0.0 };
+
+	float lengthOfCameraPos = length(camPos-sphereCenter);//relative to sphere origin
+
+	bool hit = false;
+
+	bool hitFirst, hitSecond;
+	vec3 p1, p2, q1, q2;
+	float tMinFirst, tMaxFirst, tMinSecond, tMaxSecond;
+	float tMinFinal, tMaxFinal;
+
+	hitFirst = IntersectSphereFromOutside(ray.origin, ray.direction, SPHERE_OUTER_RADIUS, p1, p2 , tMinFirst ,tMaxFirst);
+	hitSecond = IntersectSphereFromOutside(ray.origin, ray.direction, SPHERE_INNER_RADIUS, q1, q2 , tMinSecond , tMaxSecond);
+
+
+	if (hitFirst == false)
+	{
+		hit = false;
+
+	}
+	else
+	{
+		startPos = p1;
+		endPos = p2;
+		tMinFinal = tMinFirst;
+		tMaxFinal = tMaxFirst;
+
+		if (hitSecond == true)
+		{
+			endPos = q1;
+			tMaxFinal = tMinSecond;
+		}
+
+		hit = true;
+	}
+
+	volume_sampler_t cloud = { startPos , startPos , 0.0, 1.0 , vec3(0), 0.0, startPos };
+	
+
+	bool firstPos = true;
+
+	float FrontDepth = 300000;
+	vec3 frontCloudPos = ray.origin+ ray.direction*300000 ;
+	float MeanExtinction = 0.0;
+	float MaxOpticalDepth = 0.0;
+	float ExtinctionAccumulator = 0.0;
+
+	//float weather = texture(tSampler2D_WeatherMap, getUVProjection(startPos.xz)*2.0).r;
+
+	if (hit == true)
+	{
+
+		vec3 path = endPos - startPos;
+		float len = length(path);
+		float nSteps = cld_march_steps_max;
+		float deltaStepLength = len / nSteps;
+		vec3 deltaStep = path / nSteps;
+
+		cloud.pos = startPos;
+		float Depth = tMinFinal;
+		
+		float sampleCounter = 0;
+
+		while (sampleCounter < nSteps )
+		{
+
+				cloud.height = clamp(getHeightFraction(cloud.pos), 0.0, 1.0);
+				float baseDensity = ZzCloudDensity(cloud.pos, cloud.height);
+
+				if (baseDensity > 0.01 )
+				{
+
+
+					if (firstPos == true)
+					{
+						frontCloudPos = cloud.pos;
+						FrontDepth = Depth;
+						firstPos = false;
+					}
+
+					ExtinctionAccumulator += baseDensity;
+					MaxOpticalDepth += baseDensity * deltaStepLength;
+
+				}
+
+				cloud.pos += deltaStep;
+				sampleCounter += 1;
+				Depth += deltaStepLength;
+				
+		}
+
+		if (sampleCounter > 0)
+		{
+			MeanExtinction = ExtinctionAccumulator / sampleCounter;
+		}
+	}
+
+	//vec4 lightSpaceWorldPos = m4LightViewProjX * vec4(frontCloudPos, 1.0);
+	//float lightSpaceDepth = (lightSpaceWorldPos.z / lightSpaceWorldPos.w);
+	
+
+	//float finalDepth = length(frontCloudPos.xyz - v3CameraPosition);
+
+	vec4 LightSpacePos = m4LightViewProjX * vec4(frontCloudPos.xyz, 1.0);
+	LightSpacePos /= LightSpacePos.w;
+
+	float tempDepth = LightSpacePos.z ;
+
+	float near = 150000.0 * fShadowFactor;
+	float far = near + 150000.0;
+
+	near = 10.0;
+	far = near + 10000.0;
+
+	//tempDepth = linearize_depthVulkan(tempDepth, near, far)/ (far- near);
+
+	imageStore(cloudShadowMapImage, fragCoords, vec4(FrontDepth,MeanExtinction, MaxOpticalDepth,1.0));// texture will appear empty but its not... RGBA16F
+
+
+}

@@ -1,0 +1,97 @@
+#version 460 core
+
+layout(vertices=4)out;
+
+const int AB = 3;
+const int BC = 0;
+const int CD = 1;
+const int DA = 2;
+
+in vec2 vsTexCoords[];
+out vec2 tcsTexCoords[];
+
+uniform float fArtistFactor;
+
+uniform mat4 m4ModelX;
+uniform mat4 m4ViewX;
+uniform mat4 m4ProjX;
+uniform mat4 m4ViewProjX;
+uniform mat4 m4ModelViewProjX;
+uniform sampler2D tSampler_Heightmap;
+
+void main(void)
+{
+if (gl_InvocationID == 0)
+    {
+
+		//float height0 = texture(tSampler_heightmap, vec2(vsTexCoords[0].x,vsTexCoords[0].y)).r ;
+		//float height1 = texture(tSampler_heightmap, vec2(vsTexCoords[1].x,vsTexCoords[1].y)).r ;
+		//float height2 = texture(tSampler_heightmap, vec2(vsTexCoords[2].x,vsTexCoords[2].y)).r ;
+		//float height3 = texture(tSampler_heightmap, vec2(vsTexCoords[3].x,vsTexCoords[3].y)).r ;
+		
+        vec4 p0Temp =  gl_in[0].gl_Position;
+        vec4 p1Temp =  gl_in[1].gl_Position;
+        vec4 p2Temp =  gl_in[2].gl_Position;
+        vec4 p3Temp =  gl_in[3].gl_Position;
+		
+		//p0Temp = (m4ModelX*p0Temp);
+		//p1Temp = (m4ModelX*p1Temp);
+		//p2Temp = (m4ModelX*p2Temp);
+		//p3Temp = (m4ModelX*p3Temp);
+
+        vec4 p0 = m4ModelViewProjX * p0Temp;
+        vec4 p1 = m4ModelViewProjX * p1Temp;
+        vec4 p2 = m4ModelViewProjX * p2Temp;
+        vec4 p3 = m4ModelViewProjX * p3Temp;
+
+		vec4 centerPoint=mix(mix(p0,p1,0.5),mix(p2,p3,0.5),0.5);
+		vec4 clipSpaceCenterPoint=(centerPoint/centerPoint.w)*10000.0;//-10000 to 10000
+
+        p0 /= p0.w;
+        p1 /= p1.w;
+        p2 /= p2.w;
+        p3 /= p3.w;
+
+
+/*
+		// if ((clipSpaceCenterPoint.x-10000.0*fArtistFactor>clipSpaceCenterPoint.w)||(clipSpaceCenterPoint.x+2000.0<-clipSpaceCenterPoint.w)||(clipSpaceCenterPoint.y+2000.0<-clipSpaceCenterPoint.w)||(clipSpaceCenterPoint.y-2000.0>clipSpaceCenterPoint.w))
+		 if ((clipSpaceCenterPoint.x+10000*fArtistFactor>clipSpaceCenterPoint.w))
+         {
+              gl_TessLevelOuter[0] = 0.0;
+              gl_TessLevelOuter[1] = 0.0;
+              gl_TessLevelOuter[2] = 0.0;
+              gl_TessLevelOuter[3] = 0.0;
+
+			 gl_TessLevelInner[0] = 0.0;
+             gl_TessLevelInner[1] = 0.0;
+         }
+         else
+*/
+         {
+		 //gl_MaxTessGenLevel
+            float l0 = length(p2.xy - p0.xy) ;
+            float l1 = length(p3.xy - p2.xy) ;
+            float l2 = length(p3.xy - p1.xy) ;
+            float l3 = length(p1.xy - p0.xy) ;
+            gl_TessLevelOuter[0] = mix(2.0,float(8),clamp(l0,0.0,1.0)); 
+            gl_TessLevelOuter[1] = mix(2.0,float(8),clamp(l1,0.0,1.0)); 
+            gl_TessLevelOuter[2] = mix(2.0,float(8),clamp(l2,0.0,1.0)); 
+            gl_TessLevelOuter[3] = mix(2.0,float(8),clamp(l3,0.0,1.0)); 
+            gl_TessLevelInner[0] =mix(2.0,float(8),clamp(min(l1, l3),0.0,1.0));  
+            gl_TessLevelInner[1] =mix(2.0,float(8),clamp(min(l0, l2),0.0,1.0));  
+
+        }
+        //     gl_TessLevelOuter[0] = 1.0;
+        //     gl_TessLevelOuter[1] =1.0;
+        //     gl_TessLevelOuter[2] = 1.0;
+        //     gl_TessLevelOuter[3] = 1.0;
+
+		//	 gl_TessLevelInner[0] = 1.0;
+         //    gl_TessLevelInner[1] = 1.0; 
+
+
+    }
+	gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
+
+	tcsTexCoords[gl_InvocationID]=vsTexCoords[gl_InvocationID];
+}

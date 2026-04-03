@@ -1,0 +1,26 @@
+#version 460 core
+
+out vec2 vsTexCoords;
+//out vec2 tesTexCoords;
+uniform float fArtistFactor;
+
+void main(void)
+{
+    const vec4 vertices[] = vec4[](vec4(-0.5, 0.0, -0.5, 1.0),
+                                   vec4( 0.5, 0.0, -0.5, 1.0),
+                                   vec4(-0.5, 0.0,  0.5, 1.0),
+                                   vec4( 0.5, 0.0,  0.5, 1.0));
+
+   // int x = gl_InstanceID & 63;
+  //  int y = gl_InstanceID >> 6;
+
+	int x = gl_InstanceID % 128;
+    int y = gl_InstanceID / 128;
+    vec2 offs = vec2(x, y);
+ 
+    vsTexCoords = (vertices[gl_VertexID].xz + offs + vec2(0.5)) / 128.0;
+	vsTexCoords.y = 1.0-vsTexCoords.y;
+    gl_Position = vertices[gl_VertexID] + vec4(float(x - 64), 0.0,
+                                               float(y - 64), 0.0);
+	//gl_Position.z*=(1.0-0.069*(vsTexCoords.x))*0.905;//distortion correction
+}

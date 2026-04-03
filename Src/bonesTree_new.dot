@@ -1,0 +1,341 @@
+digraph AnimModelNodesRootNode { 
+//attributes
+0[  label=RootNode shape=box ]
+1[  label=Naked_Rat_Hips00_$AssimpFbx$_Translation shape=box ]
+2[  label=Naked_Rat_Hips00_$AssimpFbx$_PreRotation shape=box ]
+3[  label=Naked_Rat_Hips00_$AssimpFbx$_Rotation shape=box ]
+4[  label=Naked_Rat_Hips00_$AssimpFbx$_Scaling shape=box ]
+5[  label=Naked_Rat_Hips00 shape=box ]
+6[  label=Naked_Rat_Spine00 shape=box ]
+7[  label=Naked_Rat_Spine01 shape=box ]
+8[  label=Naked_Rat_Spine02 shape=box ]
+9[  label=Naked_Rat_Spine03 shape=box ]
+10[  label=Naked_Rat_Neck01 shape=box ]
+11[  label=Naked_Rat_Neck00 shape=box ]
+12[  label=Naked_Rat_Head00 shape=box ]
+13[  label=Naked_Rat_Nose00 shape=box ]
+14[  label=point14 shape=box ]
+15[  label=Naked_Rat_Jowl01 shape=box ]
+16[  label=Naked_Rat_Jowl00 shape=box ]
+17[  label=point03 shape=box ]
+18[  label=Naked_Rat_Tongue00 shape=box ]
+19[  label=Naked_Rat_Tongue01 shape=box ]
+20[  label=Naked_Rat_Tongue02 shape=box ]
+21[  label=Bone060 shape=box ]
+22[  label=Naked_Rat_L_Eye00 shape=box ]
+23[  label=Naked_Rat_L_Eye01 shape=box ]
+24[  label=point13 shape=box ]
+25[  label=Naked_Rat_L_Ear01 shape=box ]
+26[  label=Naked_Rat_L_Ear00 shape=box ]
+27[  label=point15 shape=box ]
+28[  label=Naked_Rat_R_Eye00 shape=box ]
+29[  label=Naked_Rat_R_Eye01 shape=box ]
+30[  label=point12 shape=box ]
+31[  label=Naked_Rat_R_Ear01 shape=box ]
+32[  label=Naked_Rat_R_Ear00 shape=box ]
+33[  label=point16 shape=box ]
+34[  label=Naked_Rat__L_Shoulder00 shape=box ]
+35[  label=Naked_Rat_L_Arm00 shape=box ]
+36[  label=Naked_Rat_L_Hand00 shape=box ]
+37[  label=Naked_Rat_L_Hand_Finger00 shape=box ]
+38[  label=Naked_Rat_L_Hand_Finger01 shape=box ]
+39[  label=Naked_Rat_L_Hand_Finger02 shape=box ]
+40[  label=Naked_Rat_L_Hand_Finger03 shape=box ]
+41[  label=point05 shape=box ]
+42[  label=Naked_Rat_L_Hand_Finger05 shape=box ]
+43[  label=Naked_Rat_L_Hand_Finger06 shape=box ]
+44[  label=Naked_Rat_L_Hand_Finger07 shape=box ]
+45[  label=Naked_Rat_L_Hand_Finger08 shape=box ]
+46[  label=point04 shape=box ]
+47[  label=Naked_Rat_L_Hand_Finger10 shape=box ]
+48[  label=Naked_Rat_L_Hand_Finger11 shape=box ]
+49[  label=Naked_Rat_L_Hand_Finger12 shape=box ]
+50[  label=Naked_Rat_L_Hand_Finger13 shape=box ]
+51[  label=point06 shape=box ]
+52[  label=Naked_Rat_L_Hand_Finger15 shape=box ]
+53[  label=Naked_Rat_L_Hand_Finger16 shape=box ]
+54[  label=Naked_Rat_L_Hand_Finger17 shape=box ]
+55[  label=Naked_Rat_L_Hand_Finger18 shape=box ]
+56[  label=point07 shape=box ]
+57[  label=Naked_Rat__R_Shoulder00 shape=box ]
+58[  label=Naked_Rat_R_Arm00 shape=box ]
+59[  label=Naked_Rat_R_Hand00 shape=box ]
+60[  label=Naked_Rat_R_Hand_Finger08 shape=box ]
+61[  label=Naked_Rat_R_Hand_Finger09 shape=box ]
+62[  label=Naked_Rat_R_Hand_Finger10 shape=box ]
+63[  label=Naked_Rat_R_Hand_Finger11 shape=box ]
+64[  label=point09 shape=box ]
+65[  label=Naked_Rat_R_Hand_Finger12 shape=box ]
+66[  label=Naked_Rat_R_Hand_Finger13 shape=box ]
+67[  label=Naked_Rat_R_Hand_Finger14 shape=box ]
+68[  label=Naked_Rat_R_Hand_Finger15 shape=box ]
+69[  label=point10 shape=box ]
+70[  label=Naked_Rat_R_Hand_Finger00 shape=box ]
+71[  label=Naked_Rat_R_Hand_Finger01 shape=box ]
+72[  label=Naked_Rat_R_Hand_Finger02 shape=box ]
+73[  label=Naked_Rat_R_Hand_Finger03 shape=box ]
+74[  label=point11 shape=box ]
+75[  label=Naked_Rat_R_Hand_Finger04 shape=box ]
+76[  label=Naked_Rat_R_Hand_Finger05 shape=box ]
+77[  label=Naked_Rat_R_Hand_Finger06 shape=box ]
+78[  label=Naked_Rat_R_Hand_Finger07 shape=box ]
+79[  label=point08 shape=box ]
+80[  label=Naked_Rat_Tail00 shape=box ]
+81[  label=Naked_Rat_Tail01 shape=box ]
+82[  label=Naked_Rat_Tail02 shape=box ]
+83[  label=Naked_Rat_Tail10 shape=box ]
+84[  label=Naked_Rat_Tail03 shape=box ]
+85[  label=Naked_Rat_Tail04 shape=box ]
+86[  label=Naked_Rat_Tail05 shape=box ]
+87[  label=Naked_Rat_Tail09 shape=box ]
+88[  label=Naked_Rat_Tail07 shape=box ]
+89[  label=Naked_Rat_Tail08 shape=box ]
+90[  label=Naked_Rat_Tail06 shape=box ]
+91[  label=Naked_Rat_Tail11 shape=box ]
+92[  label=point02 shape=box ]
+93[  label=Naked_Rat_L_Hip00 shape=box ]
+94[  label=Naked_Rat_L_Uperleg00 shape=box ]
+95[  label=Naked_Rat_L_Leg00 shape=box ]
+96[  label=Naked_Rat_L_Foot00 shape=box ]
+97[  label=Naked_Rat_L_Leg_Finger00 shape=box ]
+98[  label=Naked_Rat_L_Leg_Finger01 shape=box ]
+99[  label=point01 shape=box ]
+100[  label=Naked_Rat_R_Hip00 shape=box ]
+101[  label=Naked_Rat_R_Uperleg00 shape=box ]
+102[  label=Naked_Rat_R_Leg00 shape=box ]
+103[  label=Naked_Rat_R_Foot00 shape=box ]
+104[  label=Naked_Rat_R_Leg_Finger00 shape=box ]
+105[  label=Naked_Rat_R_Leg_Finger01 shape=box ]
+106[  label=point00 shape=box ]
+107[  label=Rat_$AssimpFbx$_Translation shape=box ]
+108[  label=Rat_$AssimpFbx$_PreRotation shape=box ]
+109[  label=Rat_$AssimpFbx$_Rotation shape=box ]
+110[  label=Rat_$AssimpFbx$_GeometricRotation shape=box ]
+111[  label=Rat shape=box ]
+
+//grah structure
+"0" -> "1"
+"1" -> "2"
+"2" -> "3"
+"3" -> "4"
+"4" -> "5"
+"5" -> "6"
+"6" -> "7"
+"7" -> "8"
+"8" -> "9"
+"9" -> "10"
+"10" -> "11"
+"11" -> "12"
+"12" -> "13"
+"13" -> "14"
+
+
+
+"11" -> "15"
+"15" -> "16"
+"16" -> "17"
+
+
+"15" -> "18"
+"18" -> "19"
+"19" -> "20"
+"20" -> "21"
+
+
+
+
+
+"11" -> "22"
+"22" -> "23"
+"23" -> "24"
+
+
+
+"11" -> "25"
+"25" -> "26"
+"26" -> "27"
+
+
+
+"11" -> "28"
+"28" -> "29"
+"29" -> "30"
+
+
+
+"11" -> "31"
+"31" -> "32"
+"32" -> "33"
+
+
+
+
+
+"9" -> "34"
+"34" -> "35"
+"35" -> "36"
+"36" -> "37"
+"37" -> "38"
+"38" -> "39"
+"39" -> "40"
+"40" -> "41"
+
+
+
+
+
+"36" -> "42"
+"42" -> "43"
+"43" -> "44"
+"44" -> "45"
+"45" -> "46"
+
+
+
+
+
+"36" -> "47"
+"47" -> "48"
+"48" -> "49"
+"49" -> "50"
+"50" -> "51"
+
+
+
+
+
+"36" -> "52"
+"52" -> "53"
+"53" -> "54"
+"54" -> "55"
+"55" -> "56"
+
+
+
+
+
+
+
+
+"9" -> "57"
+"57" -> "58"
+"58" -> "59"
+"59" -> "60"
+"60" -> "61"
+"61" -> "62"
+"62" -> "63"
+"63" -> "64"
+
+
+
+
+
+"59" -> "65"
+"65" -> "66"
+"66" -> "67"
+"67" -> "68"
+"68" -> "69"
+
+
+
+
+
+"59" -> "70"
+"70" -> "71"
+"71" -> "72"
+"72" -> "73"
+"73" -> "74"
+
+
+
+
+
+"59" -> "75"
+"75" -> "76"
+"76" -> "77"
+"77" -> "78"
+"78" -> "79"
+
+
+
+
+
+
+
+
+
+
+
+
+"5" -> "80"
+"80" -> "81"
+"81" -> "82"
+"82" -> "83"
+"83" -> "84"
+"84" -> "85"
+"85" -> "86"
+"86" -> "87"
+"87" -> "88"
+"88" -> "89"
+"89" -> "90"
+"90" -> "91"
+"91" -> "92"
+
+
+
+
+
+
+
+
+
+
+
+
+
+"5" -> "93"
+"93" -> "94"
+"94" -> "95"
+"95" -> "96"
+"96" -> "97"
+"97" -> "98"
+"98" -> "99"
+
+
+
+
+
+
+
+"5" -> "100"
+"100" -> "101"
+"101" -> "102"
+"102" -> "103"
+"103" -> "104"
+"104" -> "105"
+"105" -> "106"
+
+
+
+
+
+
+
+
+
+
+
+
+"0" -> "107"
+"107" -> "108"
+"108" -> "109"
+"109" -> "110"
+"110" -> "111"
+
+
+
+
+
+
+
+ } 

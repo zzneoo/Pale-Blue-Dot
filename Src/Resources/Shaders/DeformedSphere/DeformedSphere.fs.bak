@@ -1,0 +1,21 @@
+#version 460 core
+
+layout (location=0)out vec4 Out_WorldSpacePosition;
+layout (location=1)out vec4 Out_WorldSpaceNormal;
+layout (location=2)out vec4 Out_AlbedoAO;
+
+uniform sampler2D tSampler_SphereMap;
+
+in vec2 tesTexCoords;
+in vec4 worldPos;
+
+void main(void)
+{
+	vec4 earthTexture = texture(tSampler_SphereMap,tesTexCoords);
+	
+	Out_WorldSpacePosition = vec4(worldPos.xyz,1.0);
+	Out_WorldSpaceNormal = vec4(vec3(0.0,1.0,0.0),0.9);
+	Out_AlbedoAO = vec4(vec3(1.0),1.0);
+
+} 
+

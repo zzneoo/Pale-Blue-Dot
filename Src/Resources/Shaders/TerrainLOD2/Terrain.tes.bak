@@ -1,0 +1,89 @@
+#version 460 core
+
+layout(quads, fractional_even_spacing, ccw) in;
+
+#define TALUS_SCALE 20
+#define GRASS_SCALE 15
+#define SAND_SCALE 100
+#define ROCK_SCALE 100
+
+#define TALUS_SCALE_LOW 15
+#define GRASS_SCALE_LOW 15
+#define SAND_SCALE_LOW 6.69
+#define ROCK_SCALE_LOW 15
+
+uniform float fTerrainFactor;
+
+uniform mat4 m4ModelX;
+uniform mat4 m4ViewX;
+uniform mat4 m4ProjX;
+
+uniform mat4 m4ModelViewProjX;
+
+uniform mat4 m4LightSpaceX;
+
+uniform vec3 v3SunPos;
+uniform vec3 v3EyePos;
+
+out vec3 toSunVector;
+out vec3 toEyeVector;
+
+//terrain (not material)
+uniform sampler2D tSampler_heightmap;
+uniform sampler2D tSampler_terrainNormal;
+
+uniform sampler2D tSampler_terrainAlbedoLandSWTR;
+uniform sampler2D tSampler_terrainAlbedoWaterRBWD;
+
+//Displacement
+uniform sampler2D tSampler_terrainDisplacementGrass;
+uniform sampler2D tSampler_terrainDisplacementSand;
+uniform sampler2D tSampler_terrainDisplacementRock;
+uniform sampler2D tSampler_terrainDisplacementTalus;
+
+in vec2 tcsTexCoords[];
+
+out vec4 lightSpaceFragPos;
+
+out vec2 tesTexCoords;
+out vec4 worldPos;
+out float distance;
+out float terrainHeight;
+
+
+
+void main(void)
+{
+    vec2 tc1 = mix(tcsTexCoords[0], tcsTexCoords[1], gl_TessCoord.x);
+    vec2 tc2 = mix(tcsTexCoords[2], tcsTexCoords[3], gl_TessCoord.x);
+    vec2 tc = mix(tc2, tc1, gl_TessCoord.y);
+
+    tesTexCoords = tc;
+
+    vec4 p1 = mix(gl_in[0].gl_Position, gl_in[1].gl_Position, gl_TessCoord.x);
+    vec4 p2 = mix(gl_in[2].gl_Position, gl_in[3].gl_Position, gl_TessCoord.x);
+    vec4 p = mix(p2, p1, gl_TessCoord.y);
+
+    	//maps
+	//vec4 SlopeWearTalusRoughness=texture(tSampler_terrainAlbedoLandSWTR,tc);
+	vec4 RoughnessBeachWaterDepth=texture(tSampler_terrainAlbedoWaterRBWD,tc);
+
+    p.y = texture(tSampler_heightmap, vec2(tc.x,tc.y)).r;//Raw16 y is inversed   
+	 terrainHeight=p.y;
+	 
+	 p.y= p.y*128*0.25 ;
+	worldPos = m4ModelX * p;
+
+    terrainHeight=worldPos.y;
+    //displacement
+   // worldPos.xyz+=getIslandDisplacement(SlopeWearTalusRoughness,RoughnessBeachWaterDepth);
+     lightSpaceFragPos = m4LightSpaceX*worldPos;
+
+    toSunVector = v3SunPos;
+    toEyeVector = v3EyePos-worldPos.xyz;
+
+	vec4 eyeCoord = m4ViewX*worldPos;
+	distance=clamp(length(eyeCoord.xyz)*0.0005,0,1);
+
+    gl_Position = m4ProjX*eyeCoord;
+}

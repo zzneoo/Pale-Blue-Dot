@@ -1,0 +1,36 @@
+# version 460 core
+
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+uniform layout(rg32f, binding = 0) writeonly image2D MaxVelocityImage;
+
+uniform sampler2D tSamplerCurrVelocity;
+
+void main(void)
+{
+
+	ivec2 fragCoords = ivec2(gl_GlobalInvocationID.xy);
+
+	vec2 mv = vec2(0.0);
+	float dmv = 0.0;
+
+	for (int i = -1; i <= 1; i++)
+	{	
+		for (int j = -1; j <= 1; j++)
+			{
+				vec2 v = texelFetch(tSamplerCurrVelocity,fragCoords + ivec2(i,j), 0 ).xy;
+				float dv = dot(v, v);
+				if (dv > dmv)
+				{
+					mv = v;
+					dmv = dv;
+				}
+			}
+	}
+	
+
+	//imageStore(MaxVelocityImage, fragCoords, vec4(mv,0.0, 1.0));
+	imageStore(MaxVelocityImage, fragCoords, vec4(texelFetch(tSamplerCurrVelocity,fragCoords, 0 ).xy,0.0, 1.0));
+}
+
+

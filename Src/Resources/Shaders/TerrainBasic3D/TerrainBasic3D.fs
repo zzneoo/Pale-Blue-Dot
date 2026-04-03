@@ -1,0 +1,74 @@
+#version 460 core
+
+layout (location=0)out vec4 Out_WorldSpacePosition;
+layout (location=1)out vec4 Out_WorldSpaceNormal;
+layout (location=2)out vec4 Out_AlbedoAO;
+layout (location=3)out vec4 Out_SpecRoughAlphaDither;
+layout (location=4)out vec4 Out_Velocity;
+
+uniform sampler2D tSampler_NormalMap;
+
+uniform sampler2D tSampler_MaterialAlbedo;
+uniform sampler2D tSampler_MaterialAO;
+uniform sampler2D tSampler_MaterialNormal;
+uniform sampler2D tSampler_MaterialRoughness;
+
+uniform vec3 v3LightColor;
+
+uniform float fArtistFactor;
+
+uniform mat4 m4ModelX;
+
+in vec2 tesTexCoords;
+in vec4 worldPos;
+smooth in vec4 CurrPos;
+smooth in vec4 PrevPos;
+
+in float flogz;
+in float depth;
+uniform float FcoefForLog;
+
+//layout (depth_less) out float gl_FragDepth;
+
+void main(void)
+{
+	
+	vec2 UV = vec2(tesTexCoords.x,tesTexCoords.y);
+	//Velocity
+	vec2 CurrNDC=CurrPos.xy/CurrPos.w;
+	vec2 CurrUV=CurrNDC*0.5+0.5;
+	vec2 PrevNDC=PrevPos.xy/PrevPos.w;
+	vec2 PrevUV=PrevNDC*0.5+0.5;	
+	vec2 Velocity = (CurrUV-PrevUV);
+	
+	//TBN-----------------------------------------------------------------------------------------------------------
+	vec4 N_AO = texture(tSampler_NormalMap, UV).xyzw;
+	vec3 N = N_AO.xyz;
+	N.xyz = normalize(mat3(m4ModelX)*(N.rbg*2.0-1.0));
+	vec3 T = normalize( cross(vec3(0,0,1), N ) );  
+    vec3 B = normalize(cross( N,T ));		
+	mat3 TangentToWorld = mat3(T,B,N);
+	
+	vec3 Normal=texture(tSampler_MaterialNormal,UV*10.0).rgb;
+	 Normal = Normal.rgb*2.0-1.0;
+	// Normal = vec3(0.5,0.5,1.0)*2.0-1.0;
+	 Normal = normalize(TangentToWorld*Normal);
+	
+	//PBR material-------------------------------------------------------------------------------------------------
+	float finalRoughness = texture(tSampler_MaterialRoughness,UV*10.0).r;
+	vec3 finalMetalness = vec3(0.0);		
+	vec4 Albedo = texture(tSampler_MaterialAlbedo,UV*10.0);
+	float AO =N_AO.a* texture(tSampler_MaterialAO,UV*10.0).r;
+	
+	Out_WorldSpacePosition = vec4(worldPos.xyz,1.0);
+	Out_WorldSpaceNormal = vec4(Normal,1.0);
+	Out_AlbedoAO = vec4(Albedo.rgb,AO);
+	Out_SpecRoughAlphaDither = vec4(0.0,finalRoughness,1.0,1.0);
+	Out_Velocity = vec4(Velocity,0.0,1.0);
+	
+	//Logarithmic depth
+	//gl_FragDepth = log2(flogz) * FcoefForLog;
+	//gl_FragDepth = log2(CurrPos.w/10.0)/log2(20000000.0/10.0);
+	//gl_FragDepth = depth;
+} 
+

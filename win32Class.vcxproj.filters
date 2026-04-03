@@ -1,0 +1,826 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="SourceCode">
+      <UniqueIdentifier>{7b5e20d7-f9e1-4d56-a951-662fffc985eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SourceCode\Object3D">
+      <UniqueIdentifier>{b62e8603-9b0e-4708-8426-f8677fe082da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SourceCode\Imgui">
+      <UniqueIdentifier>{1451afb2-466e-4281-b6e8-23aea1936173}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SourceCode\Animation">
+      <UniqueIdentifier>{447440fd-327c-493e-920d-d5beafaa8513}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SourceCode\Shaders">
+      <UniqueIdentifier>{5e0c9e2a-5b90-4bc6-b768-6bf7e75be3cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SourceCode\ShaderLoaders">
+      <UniqueIdentifier>{a2864e36-3317-4a30-99e1-a85e6b102218}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SourceCode\ZzOther">
+      <UniqueIdentifier>{3ede7335-2c1e-4200-9f04-25c27118f29d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SourceCode\AtmoScatterModel">
+      <UniqueIdentifier>{2e79618e-384a-455d-a5be-de75e2a3ccc1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SourceCode\Renderer">
+      <UniqueIdentifier>{2f2434a8-0650-4c4c-955a-491ee05488d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SourceCode\Win32">
+      <UniqueIdentifier>{7d3c9812-56e3-4763-b8d5-edd6ca546316}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Everything\Animation\AnimBase.cpp">
+      <Filter>SourceCode\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Animation\AnimMesh.cpp">
+      <Filter>SourceCode\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Animation\AnimModel.cpp">
+      <Filter>SourceCode\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Animation\AnimNode.cpp">
+      <Filter>SourceCode\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\imgui\imgui.cpp">
+      <Filter>SourceCode\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\imgui\imgui_demo.cpp">
+      <Filter>SourceCode\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\imgui\imgui_draw.cpp">
+      <Filter>SourceCode\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\imgui\imgui_impl_opengl3.cpp">
+      <Filter>SourceCode\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\imgui\imgui_impl_win32.cpp">
+      <Filter>SourceCode\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\imgui\imgui_widgets.cpp">
+      <Filter>SourceCode\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Objects3D\CubeMap3D.cpp">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Objects3D\Ground3D.cpp">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Objects3D\ModelPBR.cpp">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Objects3D\ModelPBR_Animated.cpp">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Objects3D\ModelPBR_SpeedTree.cpp">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Objects3D\ModelTextured.cpp">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Objects3D\MyObject3D.cpp">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Objects3D\ParticleSystem.cpp">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Objects3D\RainParticleSystem.cpp">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Objects3D\SkyDome3D.cpp">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Objects3D\SmokeParticleSystem.cpp">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Objects3D\Terrain3D.cpp">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Objects3D\Triangle3D.cpp">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Objects3D\Water3D.cpp">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\BlackBlendQuadShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\CloudShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\CubeMapShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\CullingIndirectShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\FinalQuadShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\GodRaysShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\GroundShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\LightAreaMaskShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\LightningQuadShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\ParticleSystemShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\passThroughShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\PBR_AnimatedShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\PBR_AnimatedShadowShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\PBR_ShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\PBR_SpeedTreeShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\PBR_SpeedTreeShadowShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\PerlinWorley3DShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\RainDropShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\RainParticleSystemShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\SceneBlendPostProcessShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\ShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\SkyDomeShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\SmokeParticleSystemShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\TemporalPassShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\TerrainShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\TwoTextureQuadShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\UnderWaterQuadShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\WaterHeightMapShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\WaterNormalMapShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\WaterShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\WeatherMapShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\Worley32ShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\Camera.cpp">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\Clouds.cpp">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\CullIndirect.cpp">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\debugOfstream.cpp">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\ModelPBR_Shading.cpp">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\MyTGA_Loader.cpp">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\Noise.cpp">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\OpenGLState.cpp">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\PostProcessor.cpp">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\Quad3D.cpp">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\RadialBlur.cpp">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\RayCaster.cpp">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\Util.cpp">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzNeO_Engine.cpp">
+      <Filter>SourceCode</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\stdafx.cpp">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\TemporalAntiAliasingShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\TAA.cpp">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\VelocityShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\VelocityMaxShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\CloudShadowMapShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Atmosphere\demo.cpp">
+      <Filter>SourceCode\AtmoScatterModel</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Atmosphere\model.cc">
+      <Filter>SourceCode\AtmoScatterModel</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\ZzRenderer.cpp">
+      <Filter>SourceCode\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\FrameBuffer.cpp">
+      <Filter>SourceCode\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\DefferedRenderer.cpp">
+      <Filter>SourceCode\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\SkyPBR_ShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\TerrainLOD2ShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Objects3D\TerrainLOD2.cpp">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\MyOpenGL.cpp">
+      <Filter>SourceCode\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\MyWin32.cpp">
+      <Filter>SourceCode\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ZzOther\MyLog.cpp">
+      <Filter>SourceCode\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\Axis3D_ShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\DeformedSphereShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Objects3D\Earth3D.cpp">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\EarthLODIndiaShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\SingleBillboardShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\SunGlareShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\CompositorShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\TemporalUpscale4kShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\FinalQuadBartWronskiDownsampleShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\TemporalShadowShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\EarthLODEverestShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Objects3D\TerrainBasic3D.cpp">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\TerrainBasicShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\BasicSkyPBR_ShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Objects3D\ModelPBR_SpeedTreeInstanced.cpp">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\DefferedPBR_SpeedTreeInstancedShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\SkyFroxel_ShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\CloudGroundShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\SkyDistant_ShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\CompositorSpaceShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\CloudSpaceShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\ShaderLoaders\StarFieldShaderLoader.cpp">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Everything\Objects3D\ModelPBR_RockAsset.cpp">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Everything\Animation\AnimBase.h">
+      <Filter>SourceCode\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Animation\AnimMesh.h">
+      <Filter>SourceCode\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Animation\AnimModel.h">
+      <Filter>SourceCode\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Animation\AnimNode.h">
+      <Filter>SourceCode\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\imgui\imconfig.h">
+      <Filter>SourceCode\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\imgui\imgui.h">
+      <Filter>SourceCode\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\imgui\imgui_impl_opengl3.h">
+      <Filter>SourceCode\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\imgui\imgui_impl_win32.h">
+      <Filter>SourceCode\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\imgui\imgui_internal.h">
+      <Filter>SourceCode\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\imgui\imstb_rectpack.h">
+      <Filter>SourceCode\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\imgui\imstb_textedit.h">
+      <Filter>SourceCode\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\imgui\imstb_truetype.h">
+      <Filter>SourceCode\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Objects3D\CubeMap3D.h">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Objects3D\Ground3D.h">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Objects3D\ModelPBR.h">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Objects3D\ModelPBR_Animated.h">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Objects3D\ModelPBR_SpeedTree.h">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Objects3D\ModelTextured.h">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Objects3D\MyObject3D.h">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Objects3D\ParticleSystem.h">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Objects3D\RainParticleSystem.h">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Objects3D\SkyDome3D.h">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Objects3D\SmokeParticleSystem.h">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Objects3D\Terrain3D.h">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Objects3D\Triangle3D.h">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Objects3D\Water3D.h">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\BlackBlendQuadShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\CloudShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\CubeMapShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\CullingIndirectShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\FinalQuadShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\GodRaysShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\GroundShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\LightAreaMaskShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\LightningQuadShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\ParticleSystemShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\passThroughShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\PBR_AnimatedShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\PBR_AnimatedShadowShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\PBR_ShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\PBR_SpeedTreeShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\PBR_SpeedTreeShadowShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\PerlinWorley3DShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\RainDropShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\RainParticleSystemShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\SceneBlendPostProcessShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\ShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\SkyDomeShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\SmokeParticleSystemShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\TemporalPassShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\TerrainShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\TwoTextureQuadShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\UnderWaterQuadShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\WaterHeightMapShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\WaterNormalMapShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\WaterShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\WeatherMapShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\Worley32ShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\Camera.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\Clouds.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\common.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\CullIndirect.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\debugOfstream.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\khojScene1.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\khojScene1Final.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\lightningStrikeData.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\ModelPBR_Shading.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\MyTGA_Loader.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\Noise.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\OpenGLState.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\PostProcessor.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\Quad3D.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\RadialBlur.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\RayCaster.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\targetver.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\Util.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\vmath.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\stdafx.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\TemporalAntiAliasingShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\TAA.h">
+      <Filter>SourceCode\ZzOther</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\VelocityShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\VelocityMaxShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\CloudShadowMapShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Atmosphere\constants.h">
+      <Filter>SourceCode\AtmoScatterModel</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Atmosphere\demo.h">
+      <Filter>SourceCode\AtmoScatterModel</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Atmosphere\model.h">
+      <Filter>SourceCode\AtmoScatterModel</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\ZzRenderer.h">
+      <Filter>SourceCode\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\FrameBuffer.h">
+      <Filter>SourceCode\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\DefferedRenderer.h">
+      <Filter>SourceCode\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\SkyPBR_ShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\TerrainLOD2ShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Objects3D\TerrainLOD2.h">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\MyOpenGL.h">
+      <Filter>SourceCode\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\MyWin32.h">
+      <Filter>SourceCode\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ZzOther\MyLog.h">
+      <Filter>SourceCode\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\Axis3D_ShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\DeformedSphereShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Objects3D\Earth3D.h">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\EarthLODIndiaShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\SingleBillboardShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\SunGlareShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\CompositorShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\TemporalUpscale4kShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\FinalQuadBartWronskiDownsampleShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\TemporalShadowShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\EarthLODEverestShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Objects3D\TerrainBasic3D.h">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\TerrainBasicShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\BasicSkyPBR_ShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Objects3D\ModelPBR_SpeedTreeInstanced.h">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\DefferedPBR_SpeedTreeInstancedShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\SkyFroxel_ShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\CloudGroundShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\SkyDistant_ShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\CompositorSpaceShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\CloudSpaceShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\ShaderLoaders\StarFieldShaderLoader.h">
+      <Filter>SourceCode\ShaderLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Everything\Objects3D\ModelPBR_RockAsset.h">
+      <Filter>SourceCode\Object3D</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Shaders\coloredTriangle\coloredTriangle.fs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\coloredTriangle\coloredTriangle.vs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\BlackBlendQuad\BlackBlendQuad.fs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\BlackBlendQuad\BlackBlendQuad.vs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+    <None Include="Everything\imgui\imgui.ini">
+      <Filter>SourceCode\Imgui</Filter>
+    </None>
+    <None Include="Everything\Resources\Shaders\SceneBlendPostProcess\SceneBlendPostProcess.fs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+    <None Include="Everything\Resources\Shaders\PBR\PBR.vs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+    <None Include="Everything\Resources\Shaders\PBR\PBR.fs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+    <None Include="Everything\Resources\Shaders\TemporalAntiAliasing\TemporalAntiAliasing.fs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+    <None Include="Everything\Atmosphere\definitions.glsl">
+      <Filter>SourceCode\AtmoScatterModel</Filter>
+    </None>
+    <None Include="Everything\Atmosphere\definitions.glsl.inc">
+      <Filter>SourceCode\AtmoScatterModel</Filter>
+    </None>
+    <None Include="Everything\Atmosphere\demo.glsl.inc">
+      <Filter>SourceCode\AtmoScatterModel</Filter>
+    </None>
+    <None Include="Everything\Atmosphere\functions.glsl">
+      <Filter>SourceCode\AtmoScatterModel</Filter>
+    </None>
+    <None Include="Everything\Atmosphere\functions.glsl.inc">
+      <Filter>SourceCode\AtmoScatterModel</Filter>
+    </None>
+    <None Include="Everything\Resources\Shaders\PBR\SkyPBR.fs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+    <None Include="Everything\Resources\Shaders\TerrainLOD2\Terrain.fs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+    <None Include="Everything\Resources\Shaders\Compositor\Compositor.fs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+    <None Include="Everything\Resources\Shaders\TemporalUpscale4k\TemporalUpscale4k.fs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+    <None Include="Everything\Resources\Shaders\TemporalUpscale\TemporalUpscale.fs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+    <None Include="Everything\Resources\Shaders\FinalQuad\FinalQuad.fs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+    <None Include="Everything\Resources\Shaders\EarthLODIndia\EarthLODIndia.fs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+    <None Include="Everything\Resources\Shaders\PBR\BasicSkyPBR.fs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+    <None Include="Everything\Resources\Shaders\TerrainBasic3D\TerrainBasic3D.fs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+    <None Include="Everything\Resources\Shaders\Compositor\CompositorSpace.fs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+    <None Include="Everything\Resources\Shaders\SingleBillboard\SingleBillboard.fs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+    <None Include="Everything\Resources\Shaders\TwoTextureQuad\TwoTextureQuad.fs">
+      <Filter>SourceCode\Shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Everything\Resources\Shaders\Clouds\Clouds.compute">
+      <Filter>SourceCode\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Everything\Resources\Shaders\PerlinWorley3D\PerlinWorley3D.compute">
+      <Filter>SourceCode\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Everything\Resources\Shaders\TemporalAntiAliasing\TemporalAntiAliasing.compute">
+      <Filter>SourceCode\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Everything\Resources\Shaders\Velocity\Velocity.compute">
+      <Filter>SourceCode\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Everything\Resources\Shaders\Clouds\CloudShadowMap.compute">
+      <Filter>SourceCode\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Everything\Resources\Shaders\Clouds\CloudsGround.compute">
+      <Filter>SourceCode\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Everything\Resources\Shaders\Clouds\CloudsSpace.compute">
+      <Filter>SourceCode\Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>

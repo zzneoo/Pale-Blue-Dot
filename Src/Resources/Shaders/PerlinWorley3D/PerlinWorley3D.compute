@@ -1,0 +1,279 @@
+#version 460 core
+
+#define SAMPLE(num) int(texelFetch(Sampler1D_permutation,num,0).r*255)
+
+layout(local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
+uniform layout(rgba8, binding = 0) writeonly image3D data;
+
+uniform sampler1D Sampler1D_permutation;
+uniform int iTextureSize;
+
+ ivec3 gradient3D[12] = ivec3[12]( ivec3(1,1,0),ivec3(-1,1,0), ivec3(1,-1,0), ivec3(-1,-1,0),
+ivec3(1,0,1), ivec3(-1,0,1), ivec3(1,0,-1), ivec3(-1,0,-1),
+ivec3(0,1,1), ivec3(0,-1,1), ivec3(0,1,-1), ivec3(0,-1,-1) );
+
+ unsigned int PermutationLookUp(int X, int Y, int Z)
+ {
+	 return SAMPLE(SAMPLE(SAMPLE(X)+Y)+Z);
+ }
+
+ float Remap(float val, float in_min, float in_max, float out_min, float out_max)
+ {
+	 return out_min + (((val - in_min) / (in_max - in_min)) * (out_max - out_min));
+ }
+
+vec3 random3D(ivec3 block)
+ {
+	ivec3 nextBlock = block + ivec3(1);
+
+	unsigned int gradIndex000 = PermutationLookUp(block.x, block.y, block.z);
+	unsigned int gradIndex010 = PermutationLookUp(block.x, nextBlock.y, block.z);
+	 //	int gradIndex110 = (perm[perm[perm[blockX + 1] + blockY + 1] + blockZ]);
+	 //	int gradIndex100 = (perm[perm[perm[blockX + 1] + blockY] + blockZ]) ;
+
+		 //int gradIndex001 = (perm[perm[perm[blockX] + blockY] + blockZ + 1]) ;
+		 //int gradIndex011 = (perm[perm[perm[blockX] + blockY + 1] + blockZ + 1]) ;
+		 //int gradIndex111 = (perm[perm[perm[blockX + 1] + blockY + 1] + blockZ + 1]);
+	unsigned int gradIndex101 = PermutationLookUp(nextBlock.x, block.y, nextBlock.z);
+
+	 //float finalRandX = (perm[(gradIndex000 + gradIndex010 + gradIndex110 + gradIndex100 + gradIndex001 + gradIndex011 + gradIndex111 + gradIndex101) % 255]) /255.0f;
+	 //float finalRandY = (perm[(gradIndex000 + gradIndex010 + gradIndex110 + gradIndex100 + gradIndex001 + gradIndex011 + gradIndex111 + gradIndex101) % 255]) / 255.0f;
+	 //float finalRandZ = (perm[(gradIndex000 + gradIndex010 + gradIndex110 + gradIndex100 + gradIndex001 + gradIndex011 + gradIndex111 + gradIndex101) % 255])/ 255.0f;
+
+	 float finalRandX = texelFetch(Sampler1D_permutation, int(gradIndex000), 0).r;
+	 float finalRandY = texelFetch(Sampler1D_permutation, int(gradIndex010), 0).r;
+	 float finalRandZ = texelFetch(Sampler1D_permutation, int(gradIndex101), 0).r;
+
+	 return vec3(finalRandX, finalRandY, finalRandZ);
+ }
+
+float fPerlinNoise3D(float X, float Y, float Z, int tileFreq)
+{
+	float fX = X * tileFreq;
+	float fY = Y * tileFreq;
+	float fZ = Z * tileFreq;
+
+	ivec3 block = ivec3(int(fX), int(fY), int(fZ));
+
+	ivec3 nextBlock = ivec3(block.x + 1, block.y + 1, block.z + 1);//for tiling
+
+	float fractX = fX - block.x;
+	float fractY = fY - block.y;
+	float fractZ = fZ - block.z;
+
+
+	vec3 distanceVector000 = vec3(fractX, fractY, fractZ);
+	vec3 distanceVector010 = vec3(fractX, fractY - 1.0f, fractZ);
+	vec3 distanceVector110 = vec3(fractX - 1.0f, fractY - 1.0f, fractZ);
+	vec3 distanceVector100 = vec3(fractX - 1.0f, fractY, fractZ);
+
+	vec3 distanceVector001 = vec3(fractX, fractY, fractZ - 1.0f);
+	vec3 distanceVector011 = vec3(fractX, fractY - 1.0f, fractZ - 1.0f);
+	vec3 distanceVector111 = vec3(fractX - 1.0f, fractY - 1.0f, fractZ - 1.0f);
+	vec3 distanceVector101 = vec3(fractX - 1.0f, fractY, fractZ - 1.0f);
+
+	//tiling
+
+	//if (nextBlock.x == (tileFreq))
+	//	nextBlock.x = 0;
+	//if (nextBlock.y == (tileFreq))
+	//	nextBlock.y = 0;
+	//if (nextBlock.z == (tileFreq))
+	//	nextBlock.z = 0;
+
+	nextBlock %= tileFreq;
+
+
+	unsigned int gradIndex000 = PermutationLookUp(block.x, block.y, block.z) % 12;
+	unsigned int gradIndex010 = PermutationLookUp(block.x, nextBlock.y, block.z) % 12;
+	unsigned int gradIndex110 = PermutationLookUp(nextBlock.x, nextBlock.y, block.z) % 12;
+	unsigned int gradIndex100 = PermutationLookUp(nextBlock.x, block.y, block.z) % 12;
+
+	unsigned int gradIndex001 = PermutationLookUp(block.x, block.y, nextBlock.z) % 12;
+	unsigned int gradIndex011 = PermutationLookUp(block.x, nextBlock.y, nextBlock.z) % 12;
+	unsigned int gradIndex111 = PermutationLookUp(nextBlock.x, nextBlock.y, nextBlock.z) % 12;
+	unsigned int gradIndex101 = PermutationLookUp(nextBlock.x, block.y, nextBlock.z) % 12;
+
+
+
+	vec3 gradientVector000 = vec3(gradient3D[gradIndex000].x, gradient3D[gradIndex000].y, gradient3D[gradIndex000].z);
+	vec3 gradientVector010 = vec3(gradient3D[gradIndex010].x, gradient3D[gradIndex010].y, gradient3D[gradIndex010].z);
+	vec3 gradientVector110 = vec3(gradient3D[gradIndex110].x, gradient3D[gradIndex110].y, gradient3D[gradIndex110].z);
+	vec3 gradientVector100 = vec3(gradient3D[gradIndex100].x, gradient3D[gradIndex100].y, gradient3D[gradIndex100].z);
+
+	vec3 gradientVector001 = vec3(gradient3D[gradIndex001].x, gradient3D[gradIndex001].y, gradient3D[gradIndex001].z);
+	vec3 gradientVector011 = vec3(gradient3D[gradIndex011].x, gradient3D[gradIndex011].y, gradient3D[gradIndex011].z);
+	vec3 gradientVector111 = vec3(gradient3D[gradIndex111].x, gradient3D[gradIndex111].y, gradient3D[gradIndex111].z);
+	vec3 gradientVector101 = vec3(gradient3D[gradIndex101].x, gradient3D[gradIndex101].y, gradient3D[gradIndex101].z);
+
+
+	float GdotD_000 = ((distanceVector000.x * gradientVector000.x) + (distanceVector000.y * gradientVector000.y) + (distanceVector000.z * gradientVector000.z));
+	float GdotD_010 = ((distanceVector010.x * gradientVector010.x) + (distanceVector010.y * gradientVector010.y) + (distanceVector010.z * gradientVector010.z));
+	float GdotD_110 = ((distanceVector110.x * gradientVector110.x) + (distanceVector110.y * gradientVector110.y) + (distanceVector110.z * gradientVector110.z));
+	float GdotD_100 = ((distanceVector100.x * gradientVector100.x) + (distanceVector100.y * gradientVector100.y) + (distanceVector100.z * gradientVector100.z));
+
+	float GdotD_001 = ((distanceVector001.x * gradientVector001.x) + (distanceVector001.y * gradientVector001.y) + (distanceVector001.z * gradientVector001.z));
+	float GdotD_011 = ((distanceVector011.x * gradientVector011.x) + (distanceVector011.y * gradientVector011.y) + (distanceVector011.z * gradientVector011.z));
+	float GdotD_111 = ((distanceVector111.x * gradientVector111.x) + (distanceVector111.y * gradientVector111.y) + (distanceVector111.z * gradientVector111.z));
+	float GdotD_101 = ((distanceVector101.x * gradientVector101.x) + (distanceVector101.y * gradientVector101.y) + (distanceVector101.z * gradientVector101.z));
+
+
+		fractX = fractX * fractX * fractX * (fractX * (fractX * 6 - 15) + 10);     //6t^5-15t^4+10t^3   curve(improved perlin)
+		fractY = fractY * fractY * fractY * (fractY * (fractY * 6 - 15) + 10);
+		fractZ = fractZ * fractZ * fractZ * (fractZ * (fractZ * 6 - 15) + 10);
+
+		//f*f*(3.0 - 2.0*f);
+
+	//fractX = 3.0 * fractX * fractX - 2.0 * fractX * fractX * fractX;
+	//fractY = 3.0 * fractY * fractY - 2.0 * fractY * fractY * fractY;
+	//fractZ = 3.0 * fractZ * fractZ - 2.0 * fractZ * fractZ * fractZ;
+
+	float interpolateA = GdotD_000 + (fractX * (GdotD_100 - GdotD_000));
+	float interpolateB = GdotD_001 + (fractX * (GdotD_101 - GdotD_001));
+	float interpolateC = GdotD_010 + (fractX * (GdotD_110 - GdotD_010));
+	float interpolateD = GdotD_011 + (fractX * (GdotD_111 - GdotD_011));
+
+	float interpolateE = (interpolateA + fractZ * (interpolateB - interpolateA));
+	float interpolateF = (interpolateC + fractZ * (interpolateD - interpolateC));
+
+	float interpolateFinal = (interpolateE + fractY * (interpolateF - interpolateE));
+
+	interpolateFinal = (interpolateFinal * 0.5f) + 0.5f;
+
+	return (interpolateFinal);
+}
+
+float fWorleyNoise3D(float X, float Y, float Z, int tileFreq)
+{
+	float fX = X * tileFreq;
+	float fY = Y * tileFreq;
+	float fZ = Z * tileFreq;
+
+	ivec3 thisBlock = ivec3(floor(fX), floor(fY), floor(fZ));
+	vec3 f_st = vec3(fX - thisBlock.x, fY - thisBlock.y, fZ - thisBlock.z);
+
+	float m_dist = 1.0;  // minimum distance
+	for (int w = -1; w <= 1; w++)
+	{
+		for (int v = -1; v <= 1; v++)
+		{
+			for (int u = -1; u <= 1; u++)
+			{
+
+				ivec3 neighbor = ivec3(u, v, w);
+				ivec3 currentBlock = (thisBlock + neighbor);
+
+				//TILING
+				if (currentBlock.x < 0)
+					currentBlock.x = tileFreq - 1;
+				if (currentBlock.y < 0)
+					currentBlock.y = tileFreq - 1;
+				if (currentBlock.z < 0)
+					currentBlock.z = tileFreq - 1;
+
+				//if (currentBlock.x == tileFreq)
+				//	currentBlock.x = 0;
+				//if (currentBlock.y == tileFreq)
+				//	currentBlock.y = 0;
+				//if (currentBlock.z == tileFreq)
+				//	currentBlock.z = 0;
+
+				currentBlock %= tileFreq;
+
+
+				vec3 point = random3D(currentBlock);
+				vec3 diff = ivec3(neighbor.x, neighbor.y, neighbor.z) + point - f_st;
+				float dist = length(diff);
+				m_dist = min(m_dist, dist);
+			}
+		}
+	}
+	return clamp(1.0f - m_dist * m_dist,0,1);
+}
+
+float PerlinFBM(float X,float Y,float Z)
+{
+	//perlin noise
+
+	float persistence = 0.5f;
+	float amplitude = 0.5f;
+	float perlinNoise = 0.0f;
+	float perlinFreq = 4.f;
+	float perlinLacunarity = 2.0f;
+	int octaves = 7;
+
+	for (int i = 0; i < octaves; i++)
+	{
+
+		perlinNoise += fPerlinNoise3D(X, Y, Z, int(perlinFreq)) * amplitude;
+		amplitude *= persistence;
+		perlinFreq *= perlinLacunarity;
+
+	}
+
+	perlinNoise = clamp(pow(perlinNoise * 1.0, 1.0), 0.0, 1.0);
+
+	return perlinNoise;
+}
+
+vec3 WorleyFBMs(float X, float Y, float Z)//3 FBMs
+{
+	//worleyNoise
+	const int WORLEY_COUNT = 4;
+	float worleyNoise[WORLEY_COUNT];
+	float WorleyNoiseFreq = 5.0f;
+
+
+	for (int i = 0; i < WORLEY_COUNT; i++)
+	{
+		worleyNoise[i] = fWorleyNoise3D(X, Y, Z, int(WorleyNoiseFreq));
+		WorleyNoiseFreq *= 2.0f;
+	}
+	float WorleyFBM0 = ((worleyNoise[0] * 0.625f) + (worleyNoise[1] * 0.25f) + (worleyNoise[2] * 0.125f));
+	float WorleyFBM1 = ((worleyNoise[1] * 0.625f) + (worleyNoise[2] * 0.25f) + (worleyNoise[3] * 0.125f));
+	float WorleyFBM2 = ((worleyNoise[2] * 0.625f) + (worleyNoise[3] * 0.375f) );
+
+	return vec3(WorleyFBM0, WorleyFBM1, WorleyFBM2);
+}
+
+float PerlinWorley(float X, float Y, float Z)
+{
+	float perlinNoise = PerlinFBM(X, Y, Z);
+
+	//for perlinWorley
+	float worleyNoise_PW[3];
+	float worleyFreq_PW[3] = { 5.0f,12.0f,18.0f };
+
+	for (int i = 0; i < 3; i++)
+	{
+		worleyNoise_PW[i] = fWorleyNoise3D(X, Y, Z, int(worleyFreq_PW[i]));
+	}
+	float tempWorley = (worleyNoise_PW[0] * 0.625f + (worleyNoise_PW[1] * 0.25f) + (worleyNoise_PW[2] * 0.125f));
+
+	float perlinWorley = (Remap(perlinNoise,0.0, 1.0, ((tempWorley)*1.0)-0.8, 1.0));
+
+	//perlinWorley = (perlinNoise) - (1.0-tempWorley)*0.7;
+	//perlinWorley = perlinNoise - (1.0 - tempWorley);
+	//perlinWorley = perlinNoise * 0.8f + (perlinNoise * (tempWorley)) * 0.8f;
+
+	return clamp(perlinWorley*1.1,0,1);
+
+
+	//	float 
+}
+
+void main(void)
+{
+	ivec3  pixel = ivec3(gl_GlobalInvocationID.xyz);
+
+	float fX = (pixel.x / float(iTextureSize));
+	float fY = (pixel.y / float(iTextureSize));
+	float fZ = (pixel.z / float(iTextureSize));
+
+	vec3 Worley = WorleyFBMs(fX, fY, fZ);
+	float PerlinWorley= PerlinWorley(fX, fY, fZ);
+
+	vec4 HorizenPerlinWorley = vec4(Worley, PerlinWorley);
+
+	imageStore(data, pixel, HorizenPerlinWorley);
+}

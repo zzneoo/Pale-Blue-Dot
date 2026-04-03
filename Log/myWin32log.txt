@@ -1,0 +1,2 @@
+../Log/myWin32log.txt is successfully opened
+../Log/myWin32log.txt Is Successfully Closed.

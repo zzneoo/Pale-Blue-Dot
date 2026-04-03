@@ -1,0 +1,2 @@
+../Log/MyShaderLoaderlog.txt is successfully opened
+../Log/MyShaderLoaderlog.txt Is Successfully Closed.

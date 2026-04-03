@@ -1,0 +1,12 @@
+// Normalize the view ray
+float3 viewRay = normalize(input.ViewRay);
+
+// Sample the depth buffer and convert it to linear depth
+float depth = DepthTexture.Sample(PointSampler, texCoord).x;
+float linearDepth = ProjectionB / (depth - ProjectionA);
+
+// Project the view ray onto the camera's z-axis
+float viewZDist = dot(EyeZAxis, viewRay);
+
+// Scale the view ray by the ratio of the linear z value to the projected view ray
+float3 positionWS = CameraPositionWS + viewRay * (linearDepth / viewZDist);

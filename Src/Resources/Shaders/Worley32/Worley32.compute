@@ -1,0 +1,128 @@
+#version 460 core
+
+#define SAMPLE(num) int(texelFetch(Sampler1D_permutation,num,0).r*255)
+
+layout(local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
+uniform layout(rgba8, binding = 0) writeonly image3D data;
+
+uniform sampler1D Sampler1D_permutation;
+uniform int iTextureSize;
+
+ ivec3 gradient3D[12] = ivec3[12]( ivec3(1,1,0),ivec3(-1,1,0), ivec3(1,-1,0), ivec3(-1,-1,0),
+ivec3(1,0,1), ivec3(-1,0,1), ivec3(1,0,-1), ivec3(-1,0,-1),
+ivec3(0,1,1), ivec3(0,-1,1), ivec3(0,1,-1), ivec3(0,-1,-1) );
+
+ unsigned int PermutationLookUp(int X, int Y, int Z)
+ {
+	 return SAMPLE(SAMPLE(SAMPLE(X)+Y)+Z);
+ }
+
+ float Remap(float val, float in_min, float in_max, float out_min, float out_max)
+ {
+	 return out_min + (((val - in_min) / (in_max - in_min)) * (out_max - out_min));
+ }
+
+vec3 random3D(ivec3 block)
+ {
+	ivec3 nextBlock = block + ivec3(1);
+
+	unsigned int gradIndex000 = PermutationLookUp(block.x, block.y, block.z);
+	unsigned int gradIndex010 = PermutationLookUp(block.x, nextBlock.y, block.z);
+	 //	int gradIndex110 = (perm[perm[perm[blockX + 1] + blockY + 1] + blockZ]);
+	 //	int gradIndex100 = (perm[perm[perm[blockX + 1] + blockY] + blockZ]) ;
+
+		 //int gradIndex001 = (perm[perm[perm[blockX] + blockY] + blockZ + 1]) ;
+		 //int gradIndex011 = (perm[perm[perm[blockX] + blockY + 1] + blockZ + 1]) ;
+		 //int gradIndex111 = (perm[perm[perm[blockX + 1] + blockY + 1] + blockZ + 1]);
+	unsigned int gradIndex101 = PermutationLookUp(nextBlock.x, block.y, nextBlock.z);
+
+	 //float finalRandX = (perm[(gradIndex000 + gradIndex010 + gradIndex110 + gradIndex100 + gradIndex001 + gradIndex011 + gradIndex111 + gradIndex101) % 255]) /255.0f;
+	 //float finalRandY = (perm[(gradIndex000 + gradIndex010 + gradIndex110 + gradIndex100 + gradIndex001 + gradIndex011 + gradIndex111 + gradIndex101) % 255]) / 255.0f;
+	 //float finalRandZ = (perm[(gradIndex000 + gradIndex010 + gradIndex110 + gradIndex100 + gradIndex001 + gradIndex011 + gradIndex111 + gradIndex101) % 255])/ 255.0f;
+
+	 float finalRandX = texelFetch(Sampler1D_permutation, int(gradIndex000), 0).r;
+	 float finalRandY = texelFetch(Sampler1D_permutation, int(gradIndex010), 0).r;
+	 float finalRandZ = texelFetch(Sampler1D_permutation, int(gradIndex101), 0).r;
+
+	 return vec3(finalRandX, finalRandY, finalRandZ);
+ }
+
+float fWorleyNoise3D(float X, float Y, float Z, int tileFreq)
+{
+	float fX = X * tileFreq;
+	float fY = Y * tileFreq;
+	float fZ = Z * tileFreq;
+
+	ivec3 thisBlock = ivec3(floor(fX), floor(fY), floor(fZ));
+	vec3 f_st = vec3(fX - thisBlock.x, fY - thisBlock.y, fZ - thisBlock.z);
+
+	float m_dist = 1.0;  // minimum distance
+	for (int w = -1; w <= 1; w++)
+	{
+		for (int v = -1; v <= 1; v++)
+		{
+			for (int u = -1; u <= 1; u++)
+			{
+
+				ivec3 neighbor = ivec3(u, v, w);
+				ivec3 currentBlock = (thisBlock + neighbor);
+
+				//TILING
+				if (currentBlock.x < 0)
+					currentBlock.x = tileFreq - 1;
+				if (currentBlock.y < 0)
+					currentBlock.y = tileFreq - 1;
+				if (currentBlock.z < 0)
+					currentBlock.z = tileFreq - 1;
+
+				if (currentBlock.x == tileFreq)
+					currentBlock.x = 0;
+				if (currentBlock.y == tileFreq)
+					currentBlock.y = 0;
+				if (currentBlock.z == tileFreq)
+					currentBlock.z = 0;
+
+
+				vec3 point = random3D(currentBlock);
+				vec3 diff = ivec3(neighbor.x, neighbor.y, neighbor.z) + point - f_st;
+				float dist = length(diff);
+				m_dist = min(m_dist, dist);
+			}
+		}
+	}
+	return (1.0f - m_dist * m_dist);
+}
+
+vec3 WorleyFBMs(float X, float Y, float Z)//3 FBMs
+{
+	//worleyNoise
+	const int WORLEY_COUNT = 4;
+	float worleyNoise[WORLEY_COUNT];
+	float WorleyNoiseFreq = 2.0f;
+
+
+	for (int i = 0; i < WORLEY_COUNT; i++)
+	{
+		worleyNoise[i] = fWorleyNoise3D(X, Y, Z, int(WorleyNoiseFreq));
+		WorleyNoiseFreq *= 2.0f;
+	}
+	float WorleyFBM0 = ((worleyNoise[0] * 0.625f) + (worleyNoise[1] * 0.25f) + (worleyNoise[2] * 0.125f));
+	float WorleyFBM1 = ((worleyNoise[1] * 0.625f) + (worleyNoise[2] * 0.25f) + (worleyNoise[3] * 0.125f));
+	float WorleyFBM2 = ((worleyNoise[2] * 0.750f) + (worleyNoise[3] * 0.25f));
+
+	return vec3(WorleyFBM0, WorleyFBM1, WorleyFBM2);
+}
+
+
+void main(void)
+{
+	ivec3  pixel = ivec3(gl_GlobalInvocationID.xyz);
+
+	float fX = (pixel.x / float(iTextureSize));
+	float fY = (pixel.y / float(iTextureSize));
+	float fZ = (pixel.z / float(iTextureSize));
+ 
+	vec3 Worley32 = WorleyFBMs(fX, fY, fZ);
+
+	imageStore(data, pixel, vec4(Worley32,1.0));
+}

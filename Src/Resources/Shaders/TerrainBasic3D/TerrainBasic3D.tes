@@ -1,0 +1,70 @@
+#version 460 core
+
+const float PI = 3.14159265359;
+
+layout(quads, fractional_even_spacing, ccw) in;
+
+uniform float fArtistFactor;
+
+uniform mat4 m4ModelX;
+uniform mat4 m4ViewX;
+uniform mat4 m4ProjX;
+uniform mat4 m4PrevViewX;
+uniform mat4 m4JitteredProjX;
+
+//terrain (not material)
+uniform sampler2D tSampler_HeightMap;
+uniform sampler2D tSampler_NormalMap;
+
+in vec2 tcsTexCoords[];
+
+out vec4 lightSpaceFragPos;
+
+out vec2 tesTexCoords;
+smooth out vec4 CurrPos;
+smooth out vec4 PrevPos;
+out vec4 worldPos;
+out float terrainHeight;
+
+out float flogz;
+out float depth;
+uniform float FcoefForLog;
+
+void main(void)
+{
+    vec2 tc1 = mix(tcsTexCoords[0], tcsTexCoords[1], gl_TessCoord.x);
+    vec2 tc2 = mix(tcsTexCoords[2], tcsTexCoords[3], gl_TessCoord.x);
+    vec2 tc = mix(tc2, tc1, gl_TessCoord.y);
+
+    tesTexCoords = tc;
+
+    vec4 p1 = mix(gl_in[0].gl_Position, gl_in[1].gl_Position, gl_TessCoord.x);
+    vec4 p2 = mix(gl_in[2].gl_Position, gl_in[3].gl_Position, gl_TessCoord.x);
+    vec4 p = mix(p2, p1, gl_TessCoord.y);
+		
+	float height = texture(tSampler_HeightMap, vec2(tesTexCoords.s,1.0-tesTexCoords.t)).r;//Raw16 y is inversed  here its .tga 
+	
+	p.y = height*128;	
+	worldPos = m4ModelX * p;
+			
+	vec4 clipSpace = m4ProjX*m4ViewX*worldPos;
+	CurrPos = clipSpace;
+	//vec4 NDC = clipSpace/clipSpace.w;
+	//vec2 CurrUV = NDC.xy*0.5+0.5;
+	
+	vec4 prevClipSpace = m4ProjX*m4PrevViewX*worldPos;
+	PrevPos = prevClipSpace;
+	//vec4 prevNDC =prevClipSpace/prevClipSpace.w; 
+	//vec2 PrevUV = prevNDC.xy*0.5+0.5;
+	
+
+    gl_Position = m4JitteredProjX*m4ViewX*worldPos;
+	
+	depth = gl_Position.z/gl_Position.w;
+	
+	//Logarithmic depth
+	//float Fcoef = 1.0 / log2(2000000.0 + 1.0);
+    flogz = 1.0 + gl_Position.w;	
+	//gl_Position.z = log2(max(1e-6, flogz)) *FcoefForLog ;
+	//gl_Position.z *= gl_Position.w;//do or not to do?
+}

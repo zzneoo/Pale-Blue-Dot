@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Everything\Animation\AnimBase.cpp" />
+    <ClCompile Include="Everything\Animation\AnimMesh.cpp" />
+    <ClCompile Include="Everything\Animation\AnimModel.cpp" />
+    <ClCompile Include="Everything\Animation\AnimNode.cpp" />
+    <ClCompile Include="Everything\Atmosphere\demo.cpp" />
+    <ClCompile Include="Everything\Atmosphere\model.cc" />
+    <ClCompile Include="Everything\imgui\imgui.cpp" />
+    <ClCompile Include="Everything\imgui\imgui_demo.cpp" />
+    <ClCompile Include="Everything\imgui\imgui_draw.cpp" />
+    <ClCompile Include="Everything\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="Everything\imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="Everything\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Everything\Objects3D\CubeMap3D.cpp" />
+    <ClCompile Include="Everything\Objects3D\Earth3D.cpp" />
+    <ClCompile Include="Everything\Objects3D\Ground3D.cpp" />
+    <ClCompile Include="Everything\Objects3D\ModelPBR.cpp" />
+    <ClCompile Include="Everything\Objects3D\ModelPBR_Animated.cpp" />
+    <ClCompile Include="Everything\Objects3D\ModelPBR_RockAsset.cpp" />
+    <ClCompile Include="Everything\Objects3D\ModelPBR_SpeedTree.cpp" />
+    <ClCompile Include="Everything\Objects3D\ModelPBR_SpeedTreeInstanced.cpp" />
+    <ClCompile Include="Everything\Objects3D\ModelTextured.cpp" />
+    <ClCompile Include="Everything\Objects3D\MyObject3D.cpp" />
+    <ClCompile Include="Everything\Objects3D\ParticleSystem.cpp" />
+    <ClCompile Include="Everything\Objects3D\RainParticleSystem.cpp" />
+    <ClCompile Include="Everything\Objects3D\SkyDome3D.cpp" />
+    <ClCompile Include="Everything\Objects3D\SmokeParticleSystem.cpp" />
+    <ClCompile Include="Everything\Objects3D\Terrain3D.cpp" />
+    <ClCompile Include="Everything\Objects3D\TerrainBasic3D.cpp" />
+    <ClCompile Include="Everything\Objects3D\TerrainLOD2.cpp" />
+    <ClCompile Include="Everything\Objects3D\Triangle3D.cpp" />
+    <ClCompile Include="Everything\Objects3D\Water3D.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\Axis3D_ShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\BasicSkyPBR_ShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\BlackBlendQuadShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\CloudGroundShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\CloudShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\CloudShadowMapShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\CloudSpaceShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\CompositorShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\CompositorSpaceShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\CubeMapShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\CullingIndirectShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\DefferedPBR_SpeedTreeInstancedShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\DeformedSphereShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\EarthLODEverestShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\EarthLODIndiaShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\FinalQuadBartWronskiDownsampleShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\FinalQuadShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\GodRaysShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\GroundShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\LightAreaMaskShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\LightningQuadShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\ParticleSystemShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\passThroughShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\PBR_AnimatedShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\PBR_AnimatedShadowShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\PBR_ShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\PBR_SpeedTreeShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\PBR_SpeedTreeShadowShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\PerlinWorley3DShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\RainDropShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\RainParticleSystemShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\SceneBlendPostProcessShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\ShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\SingleBillboardShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\SkyDistant_ShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\SkyDomeShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\SkyFroxel_ShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\SkyPBR_ShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\SmokeParticleSystemShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\StarFieldShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\SunGlareShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\TemporalAntiAliasingShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\TemporalPassShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\TemporalShadowShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\TemporalUpscale4kShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\TerrainBasicShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\TerrainLOD2ShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\TerrainShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\TwoTextureQuadShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\UnderWaterQuadShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\VelocityMaxShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\VelocityShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\WaterHeightMapShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\WaterNormalMapShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\WaterShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\WeatherMapShaderLoader.cpp" />
+    <ClCompile Include="Everything\ShaderLoaders\Worley32ShaderLoader.cpp" />
+    <ClCompile Include="Everything\stdafx.cpp" />
+    <ClCompile Include="Everything\ZzNeO_Engine.cpp" />
+    <ClCompile Include="Everything\ZzOther\Camera.cpp" />
+    <ClCompile Include="Everything\ZzOther\Clouds.cpp" />
+    <ClCompile Include="Everything\ZzOther\CullIndirect.cpp" />
+    <ClCompile Include="Everything\ZzOther\debugOfstream.cpp" />
+    <ClCompile Include="Everything\ZzOther\DefferedRenderer.cpp" />
+    <ClCompile Include="Everything\ZzOther\FrameBuffer.cpp" />
+    <ClCompile Include="Everything\ZzOther\ModelPBR_Shading.cpp" />
+    <ClCompile Include="Everything\ZzOther\MyLog.cpp" />
+    <ClCompile Include="Everything\ZzOther\MyOpenGL.cpp" />
+    <ClCompile Include="Everything\ZzOther\MyTGA_Loader.cpp" />
+    <ClCompile Include="Everything\ZzOther\MyWin32.cpp" />
+    <ClCompile Include="Everything\ZzOther\Noise.cpp" />
+    <ClCompile Include="Everything\ZzOther\OpenGLState.cpp" />
+    <ClCompile Include="Everything\ZzOther\PostProcessor.cpp" />
+    <ClCompile Include="Everything\ZzOther\Quad3D.cpp" />
+    <ClCompile Include="Everything\ZzOther\RadialBlur.cpp" />
+    <ClCompile Include="Everything\ZzOther\RayCaster.cpp" />
+    <ClCompile Include="Everything\ZzOther\TAA.cpp" />
+    <ClCompile Include="Everything\ZzOther\Util.cpp" />
+    <ClCompile Include="Everything\ZzOther\ZzRenderer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Everything\Animation\AnimBase.h" />
+    <ClInclude Include="Everything\Animation\AnimMesh.h" />
+    <ClInclude Include="Everything\Animation\AnimModel.h" />
+    <ClInclude Include="Everything\Animation\AnimNode.h" />
+    <ClInclude Include="Everything\Atmosphere\constants.h" />
+    <ClInclude Include="Everything\Atmosphere\demo.h" />
+    <ClInclude Include="Everything\Atmosphere\model.h" />
+    <ClInclude Include="Everything\imgui\imconfig.h" />
+    <ClInclude Include="Everything\imgui\imgui.h" />
+    <ClInclude Include="Everything\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="Everything\imgui\imgui_impl_win32.h" />
+    <ClInclude Include="Everything\imgui\imgui_internal.h" />
+    <ClInclude Include="Everything\imgui\imstb_rectpack.h" />
+    <ClInclude Include="Everything\imgui\imstb_textedit.h" />
+    <ClInclude Include="Everything\imgui\imstb_truetype.h" />
+    <ClInclude Include="Everything\Objects3D\CubeMap3D.h" />
+    <ClInclude Include="Everything\Objects3D\Earth3D.h" />
+    <ClInclude Include="Everything\Objects3D\Ground3D.h" />
+    <ClInclude Include="Everything\Objects3D\ModelPBR.h" />
+    <ClInclude Include="Everything\Objects3D\ModelPBR_Animated.h" />
+    <ClInclude Include="Everything\Objects3D\ModelPBR_RockAsset.h" />
+    <ClInclude Include="Everything\Objects3D\ModelPBR_SpeedTree.h" />
+    <ClInclude Include="Everything\Objects3D\ModelPBR_SpeedTreeInstanced.h" />
+    <ClInclude Include="Everything\Objects3D\ModelTextured.h" />
+    <ClInclude Include="Everything\Objects3D\MyObject3D.h" />
+    <ClInclude Include="Everything\Objects3D\ParticleSystem.h" />
+    <ClInclude Include="Everything\Objects3D\RainParticleSystem.h" />
+    <ClInclude Include="Everything\Objects3D\SkyDome3D.h" />
+    <ClInclude Include="Everything\Objects3D\SmokeParticleSystem.h" />
+    <ClInclude Include="Everything\Objects3D\Terrain3D.h" />
+    <ClInclude Include="Everything\Objects3D\TerrainBasic3D.h" />
+    <ClInclude Include="Everything\Objects3D\TerrainLOD2.h" />
+    <ClInclude Include="Everything\Objects3D\Triangle3D.h" />
+    <ClInclude Include="Everything\Objects3D\Water3D.h" />
+    <ClInclude Include="Everything\ShaderLoaders\Axis3D_ShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\BasicSkyPBR_ShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\BlackBlendQuadShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\CloudGroundShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\CloudShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\CloudShadowMapShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\CloudSpaceShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\CompositorShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\CompositorSpaceShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\CubeMapShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\CullingIndirectShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\DefferedPBR_SpeedTreeInstancedShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\DeformedSphereShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\EarthLODEverestShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\EarthLODIndiaShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\FinalQuadBartWronskiDownsampleShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\FinalQuadShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\GodRaysShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\GroundShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\LightAreaMaskShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\LightningQuadShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\ParticleSystemShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\passThroughShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\PBR_AnimatedShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\PBR_AnimatedShadowShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\PBR_ShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\PBR_SpeedTreeShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\PBR_SpeedTreeShadowShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\PerlinWorley3DShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\RainDropShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\RainParticleSystemShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\SceneBlendPostProcessShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\ShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\SingleBillboardShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\SkyDistant_ShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\SkyDomeShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\SkyFroxel_ShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\SkyPBR_ShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\SmokeParticleSystemShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\StarFieldShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\SunGlareShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\TemporalAntiAliasingShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\TemporalPassShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\TemporalShadowShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\TemporalUpscale4kShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\TerrainBasicShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\TerrainLOD2ShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\TerrainShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\TwoTextureQuadShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\UnderWaterQuadShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\VelocityMaxShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\VelocityShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\WaterHeightMapShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\WaterNormalMapShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\WaterShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\WeatherMapShaderLoader.h" />
+    <ClInclude Include="Everything\ShaderLoaders\Worley32ShaderLoader.h" />
+    <ClInclude Include="Everything\stdafx.h" />
+    <ClInclude Include="Everything\ZzOther\Camera.h" />
+    <ClInclude Include="Everything\ZzOther\Clouds.h" />
+    <ClInclude Include="Everything\ZzOther\common.h" />
+    <ClInclude Include="Everything\ZzOther\CullIndirect.h" />
+    <ClInclude Include="Everything\ZzOther\debugOfstream.h" />
+    <ClInclude Include="Everything\ZzOther\DefferedRenderer.h" />
+    <ClInclude Include="Everything\ZzOther\FrameBuffer.h" />
+    <ClInclude Include="Everything\ZzOther\khojScene1.h" />
+    <ClInclude Include="Everything\ZzOther\khojScene1Final.h" />
+    <ClInclude Include="Everything\ZzOther\lightningStrikeData.h" />
+    <ClInclude Include="Everything\ZzOther\ModelPBR_Shading.h" />
+    <ClInclude Include="Everything\ZzOther\MyLog.h" />
+    <ClInclude Include="Everything\ZzOther\MyOpenGL.h" />
+    <ClInclude Include="Everything\ZzOther\MyTGA_Loader.h" />
+    <ClInclude Include="Everything\ZzOther\MyWin32.h" />
+    <ClInclude Include="Everything\ZzOther\Noise.h" />
+    <ClInclude Include="Everything\ZzOther\OpenGLState.h" />
+    <ClInclude Include="Everything\ZzOther\PostProcessor.h" />
+    <ClInclude Include="Everything\ZzOther\Quad3D.h" />
+    <ClInclude Include="Everything\ZzOther\RadialBlur.h" />
+    <ClInclude Include="Everything\ZzOther\RayCaster.h" />
+    <ClInclude Include="Everything\ZzOther\TAA.h" />
+    <ClInclude Include="Everything\ZzOther\targetver.h" />
+    <ClInclude Include="Everything\ZzOther\Util.h" />
+    <ClInclude Include="Everything\ZzOther\vmath.h" />
+    <ClInclude Include="Everything\ZzOther\ZzRenderer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Everything\Atmosphere\definitions.glsl" />
+    <None Include="Everything\Atmosphere\definitions.glsl.inc" />
+    <None Include="Everything\Atmosphere\demo.glsl.inc" />
+    <None Include="Everything\Atmosphere\functions.glsl" />
+    <None Include="Everything\Atmosphere\functions.glsl.inc" />
+    <None Include="Everything\imgui\imgui.ini" />
+    <None Include="Everything\Resources\Shaders\Compositor\Compositor.fs" />
+    <None Include="Everything\Resources\Shaders\Compositor\CompositorSpace.fs" />
+    <None Include="Everything\Resources\Shaders\EarthLODIndia\EarthLODIndia.fs" />
+    <None Include="Everything\Resources\Shaders\FinalQuad\FinalQuad.fs" />
+    <None Include="Everything\Resources\Shaders\PBR\BasicSkyPBR.fs" />
+    <None Include="Everything\Resources\Shaders\PBR\PBR.fs" />
+    <None Include="Everything\Resources\Shaders\PBR\PBR.vs" />
+    <None Include="Everything\Resources\Shaders\PBR\SkyPBR.fs" />
+    <None Include="Everything\Resources\Shaders\SceneBlendPostProcess\SceneBlendPostProcess.fs" />
+    <None Include="Everything\Resources\Shaders\SingleBillboard\SingleBillboard.fs" />
+    <None Include="Everything\Resources\Shaders\TemporalAntiAliasing\TemporalAntiAliasing.fs" />
+    <None Include="Everything\Resources\Shaders\TemporalUpscale4k\TemporalUpscale4k.fs" />
+    <None Include="Everything\Resources\Shaders\TemporalUpscale\TemporalUpscale.fs" />
+    <None Include="Everything\Resources\Shaders\TerrainBasic3D\TerrainBasic3D.fs" />
+    <None Include="Everything\Resources\Shaders\TerrainLOD2\Terrain.fs" />
+    <None Include="Everything\Resources\Shaders\TwoTextureQuad\TwoTextureQuad.fs" />
+    <None Include="Resources\Shaders\BlackBlendQuad\BlackBlendQuad.fs" />
+    <None Include="Resources\Shaders\BlackBlendQuad\BlackBlendQuad.vs" />
+    <None Include="Resources\Shaders\coloredTriangle\coloredTriangle.fs" />
+    <None Include="Resources\Shaders\coloredTriangle\coloredTriangle.vs" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Everything\Resources\Shaders\Clouds\Clouds.compute">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Everything\Resources\Shaders\Clouds\CloudsGround.compute">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Everything\Resources\Shaders\Clouds\CloudShadowMap.compute">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Everything\Resources\Shaders\Clouds\CloudsSpace.compute">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Everything\Resources\Shaders\PerlinWorley3D\PerlinWorley3D.compute">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Everything\Resources\Shaders\TemporalAntiAliasing\TemporalAntiAliasing.compute">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Everything\Resources\Shaders\Velocity\Velocity.compute">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{DB5CC05A-8EE3-4F3E-9539-447319A34CB2}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>win32Class</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <ReferencePath>$(VC_ReferencesPath_x64)</ReferencePath>
+    <ExecutablePath>$(VC_ExecutablePath_x64);$(CommonExecutablePath)</ExecutablePath>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\ZzNeO\source\glew-2.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\ZzNeO\source\glew-2.1.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)Everything\OpenGL\glext\include;$(SolutionDir)Everything;$(SolutionDir)Everything\OpenGL\glew-2.1.0\include;$(SolutionDir)Everything\OpenAL\include;$(SolutionDir)Everything\Shaderloaders;$(SolutionDir)Everything\ZzOther;$(SolutionDir)Everything\Animation;$(SolutionDir)Everything\Objects3D;$(SolutionDir)Everything\OpenCV\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)Everything\RequiredLibs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)Everything\OpenGL\glext\include;$(SolutionDir)Everything;$(SolutionDir)Everything\OpenGL\glew-2.1.0\include;$(SolutionDir)Everything\OpenAL\include;$(SolutionDir)Everything\Shaderloaders;$(SolutionDir)Everything\ZzOther;$(SolutionDir)Everything\Animation;$(SolutionDir)Everything\Objects3D;$(SolutionDir)Everything\OpenCV\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)Everything\RequiredLibs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

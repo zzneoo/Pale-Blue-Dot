@@ -1,0 +1,29 @@
+#version 460 core
+
+out vec4 FragColor;
+
+const float c_goldenRatioConjugate = 0.61803398875;
+
+uniform sampler2D tSampler0;
+uniform sampler2D tSampler1;
+uniform sampler2D tSamplerBlueNoise;
+
+uniform float fBlendFactor;
+uniform float fDitherFactor;
+uniform unsigned int iFrameID;
+
+in vec2 TexCoord;
+
+void main(void)
+{
+	vec4 currFrame=texture(tSampler0,TexCoord);
+	vec4 prevFrame=texture(tSampler1,TexCoord);
+	
+	vec3 BlueNoise = (texture(tSamplerBlueNoise,TexCoord*vec2(15.0,8.4375)).xyz);
+	BlueNoise = fract(BlueNoise + float(iFrameID % 256)*c_goldenRatioConjugate*0.01);
+	BlueNoise = 2.0f * (BlueNoise - 0.5f);
+		
+	FragColor = mix(currFrame,prevFrame,fBlendFactor)+vec4(BlueNoise*0.04*fDitherFactor,0.0);//
+	//FragColor = BlueNoise.rgbr;
+
+}

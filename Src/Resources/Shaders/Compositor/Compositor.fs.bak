@@ -1,0 +1,60 @@
+#version 460 core
+
+out vec4 FragColor;
+
+uniform sampler2D tSamplerBackground;
+uniform sampler2D tSamplerFlare;
+uniform sampler2D tSamplerDeffered;
+
+uniform vec2 v2InvResolution;
+
+in vec2 TexCoord;
+
+//Sharpness Filter
+vec3 SharpnessFilter(sampler2D inTexture ,vec2 UV,float intensity, vec2 invTexRes)// 0.0 to 1.0
+{
+    vec3 sum = texture(inTexture, UV + vec2(-1.0,-1.0)*invTexRes).rgb * -intensity
+             + texture(inTexture, UV + vec2(1.0,1.0)*invTexRes).rgb * -intensity
+             + texture(inTexture, UV + vec2(-1.0,1.0)*invTexRes).rgb * -intensity
+             + texture(inTexture, UV + vec2(1.0,-1.0)*invTexRes).rgb * -intensity
+             + texture(inTexture, UV + vec2(0.0,-1.0)*invTexRes).rgb * -intensity
+             + texture(inTexture, UV + vec2(0.0, 1.0)*invTexRes).rgb * -intensity
+             + texture(inTexture, UV + vec2(-1.0,0.0)*invTexRes).rgb * -intensity
+             + texture(inTexture, UV + vec2(1.0,0.0)*invTexRes).rgb * -intensity
+             + texture(inTexture, UV + vec2(0.0,0.0)*invTexRes).rgb * (intensity*8.0+1.0);
+    
+	return sum;
+}
+
+vec3 BartWronskiDownsample(sampler2D tSampler,vec2 UV,vec2 InvRes)
+{
+    vec3 col = vec3(0.0);
+    col += 0.37487566 * texture(tSampler, UV + vec2(-0.75777156,-0.75777156)*InvRes).xyz;
+    col += 0.37487566 * texture(tSampler, UV + vec2(0.75777156,-0.75777156)*InvRes).xyz;
+    col += 0.37487566 * texture(tSampler, UV + vec2(0.75777156,0.75777156)*InvRes).xyz;
+    col += 0.37487566 * texture(tSampler, UV + vec2(-0.75777156,0.75777156)*InvRes).xyz;
+    
+    col += -0.12487566 * texture(tSampler, UV + vec2(-2.90709914,0.0)*InvRes).xyz;
+    col += -0.12487566 * texture(tSampler, UV + vec2(2.90709914,0.0)*InvRes).xyz;
+    col += -0.12487566 * texture(tSampler, UV + vec2(0.0,-2.90709914)*InvRes).xyz;
+    col += -0.12487566 * texture(tSampler, UV + vec2(0.0,2.90709914)*InvRes).xyz; 
+	
+	return col;
+}
+
+void main(void)
+{
+	vec4 DefferedColor=vec4(BartWronskiDownsample(tSamplerDeffered,TexCoord,1.0/v2Resolution),1.0);
+	//vec4 DefferedColor=vec4(texture(tSamplerDeffered,TexCoord).rgb,1.0);
+	 DefferedColor.a=texture(tSamplerDeffered,TexCoord).a;
+	vec4 FlareColor=texture(tSamplerFlare,TexCoord);
+	vec4 BackgroundColor=texture(tSamplerBackground,TexCoord);
+
+	//DefferedColor.rgb = SharpnessFilter(tSamplerDeffered,TexCoord,0.3,1.0/vec2(1920.0,1080.0));
+	//BackgroundColor.rgb = SharpnessFilter(tSamplerBackground,TexCoord,0.1,1.0/vec2(1920.0,1080.0));
+	vec3 Layer0 = mix(BackgroundColor.rgb,DefferedColor.rgb, DefferedColor.a);
+
+
+	FragColor = vec4(mix(DefferedColor.rgb,BackgroundColor.rgb,1.0-DefferedColor.a),1.0);
+	FragColor = vec4(DefferedColor.rgb,1.0);
+}
